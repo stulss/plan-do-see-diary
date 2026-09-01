@@ -21,7 +21,8 @@ const ROOT = path.resolve(__dirname, "..");
 const EVIDENCE = path.join(ROOT, "docs", "evidence");
 const REPORTS = path.join(ROOT, "reports");
 const ASSETS = path.join(REPORTS, "assets");
-const OUTPUT = path.join(REPORTS, "플랜두씨_다이어리_과제6_제출보고서.pptx");
+// 사용자가 손본 최종 제출본을 덮어쓰지 않도록 자동 생성본은 별도 파일로 저장한다.
+const OUTPUT = path.join(REPORTS, "플랜두씨_다이어리_과제6_제출보고서_자동생성본.pptx");
 
 const pptx = new PptxGenJS();
 pptx.layout = "LAYOUT_WIDE";

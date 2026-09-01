@@ -20,7 +20,7 @@ P0~P7 구현·검증과 Vercel Supabase 연결, 스키마 적용, 실제 자료 
 | 40자리 commit 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/770e8f992d5f7da8c36b2dc823d3a5c29f5cdda6/ |
 | 짧은 확인 방법 4줄 | `docs/검증안내서.md` |
 | AI와 내 판단 3줄 | `docs/AI_3줄.md` |
-| 과제 제출 보고서 | `reports/플랜두씨_다이어리_과제6_제출보고서.pptx` · `.pdf` |
+| 과제 제출 보고서 | `reports/플랜두씨_다이어리_과제6_제출보고서.pptx`(18장) · `.pdf`(18쪽) |
 
 ## 폴더 구조
 
@@ -31,8 +31,8 @@ plan-do-see-diary/
 ├─ test/                          핵심 규칙과 플래너 날짜 계산 자동 검사
 ├─ schema.sql                     PostgreSQL 표 6개·제약·트리거
 ├─ package.json                   실행·빌드·검사 명령
-├─ scripts/                       제출 보고서 PPTX 생성 스크립트
-├─ reports/                       과제 제출 보고서 PPTX·PDF
+├─ scripts/                       제출 보고서 생성·검증안내서 추가 스크립트
+├─ reports/                       사용자 수정본을 반영한 최종 PPTX 18장·PDF 18쪽
 ├─ README.md                     이 문서
 ├─ 작업내역_체크리스트.md          단일 진실 공급원(SSOT) — 진행·결정·작업 로그
 ├─ CLAUDE.md / AGENTS.md / GEMINI.md   AI 진입 지침(토큰 절약 규칙)
