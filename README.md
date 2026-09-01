@@ -17,7 +17,7 @@ P0~P7 구현·검증과 Vercel Supabase 연결, 스키마 적용, 실제 자료 
 |---|---|
 | 결과물 주소 | https://plan-do-see-diary.vercel.app |
 | 소스 저장소 | https://github.com/stulss/plan-do-see-diary |
-| 40자리 commit 고정 URL | 최종 문서 커밋 후 기입 |
+| 40자리 commit 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/770e8f992d5f7da8c36b2dc823d3a5c29f5cdda6/ |
 | 짧은 확인 방법 4줄 | `docs/검증안내서.md` |
 | AI와 내 판단 3줄 | `docs/AI_3줄.md` |
 
