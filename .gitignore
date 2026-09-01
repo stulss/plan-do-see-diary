@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+service-account.json
+npm-debug.log*
+*.tsbuildinfo
+
+.vercel
+.env*

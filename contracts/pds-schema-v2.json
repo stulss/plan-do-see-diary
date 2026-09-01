@@ -1,0 +1,134 @@
+{
+  "name": "pds-schema",
+  "version": 2,
+  "description": "플랜두씨 다이어리의 표·항목·관계와 날짜/단위 규칙, 돌아보기 집계 정의 계약",
+  "database": "postgresql",
+  "unit_rules": {
+    "duration_unit": "minute",
+    "note": "estimate_minutes, actual_minutes 를 포함한 모든 소요 시간은 분 단위 정수로 저장·계산·표시한다."
+  },
+  "date_rules": {
+    "date_columns": {
+      "type": "date",
+      "timezone": "Asia/Seoul",
+      "note": "마감일과 계획 기간은 서울 날짜를 그대로 저장하며 시간대 변환을 하지 않는다."
+    },
+    "timestamp_columns": {
+      "type": "timestamptz",
+      "stored_in": "UTC",
+      "displayed_in": "Asia/Seoul"
+    },
+    "today": "(now() AT TIME ZONE 'Asia/Seoul')::date"
+  },
+  "soft_delete": {
+    "table": "task",
+    "column": "deleted_at",
+    "rule": "NULL 이면 살아 있는 행. 모든 집계와 목록은 deleted_at IS NULL 조건을 적용한다."
+  },
+  "tables": [
+    {
+      "name": "plan",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "start_date", "type": "date", "nullable": false },
+        { "name": "end_date", "type": "date", "nullable": false },
+        { "name": "priority", "type": "smallint", "nullable": false },
+        { "name": "success_criteria", "type": "text", "nullable": false },
+        { "name": "estimate_minutes", "type": "integer", "nullable": true },
+        { "name": "carried_from_review_id", "type": "bigint", "nullable": true },
+        { "name": "created_at", "type": "timestamptz", "nullable": false },
+        { "name": "updated_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "plan_revision",
+      "purpose": "계획 수정 직전 값 보관 (T06-C08)",
+      "written_by": "BEFORE UPDATE ON plan 트리거",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "plan_id", "type": "bigint", "nullable": false },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "start_date", "type": "date", "nullable": false },
+        { "name": "end_date", "type": "date", "nullable": false },
+        { "name": "priority", "type": "smallint", "nullable": false },
+        { "name": "success_criteria", "type": "text", "nullable": false },
+        { "name": "estimate_minutes", "type": "integer", "nullable": true },
+        { "name": "revised_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "task",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "plan_id", "type": "bigint", "nullable": false },
+        { "name": "title", "type": "text", "nullable": false },
+        { "name": "note", "type": "text", "nullable": true },
+        { "name": "due_date", "type": "date", "nullable": true },
+        { "name": "priority", "type": "smallint", "nullable": false },
+        { "name": "tags", "type": "text[]", "nullable": false, "default": "{}" },
+        { "name": "estimate_minutes", "type": "integer", "nullable": true },
+        { "name": "created_at", "type": "timestamptz", "nullable": false },
+        { "name": "updated_at", "type": "timestamptz", "nullable": false },
+        { "name": "deleted_at", "type": "timestamptz", "nullable": true }
+      ]
+    },
+    {
+      "name": "task_completion",
+      "purpose": "완료 상태. 할 일 하나당 최대 한 행이므로 완료 연타가 중복되지 않는다 (T06-C21/C22)",
+      "write_rule": "INSERT ... ON CONFLICT (task_id) DO NOTHING / 되돌리기는 DELETE",
+      "columns": [
+        { "name": "task_id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "completed_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "run_log",
+      "purpose": "실제로 한 일. 계획 값을 덮어쓰지 않는다 (T06-C27)",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "task_id", "type": "bigint", "nullable": false },
+        { "name": "started_at", "type": "timestamptz", "nullable": false },
+        { "name": "ended_at", "type": "timestamptz", "nullable": true },
+        { "name": "actual_minutes", "type": "integer", "nullable": false },
+        { "name": "blocker_reason", "type": "text", "nullable": true },
+        { "name": "created_at", "type": "timestamptz", "nullable": false }
+      ]
+    },
+    {
+      "name": "review",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "primary_key": true },
+        { "name": "period_start", "type": "date", "nullable": false },
+        { "name": "period_end", "type": "date", "nullable": false },
+        { "name": "next_action", "type": "text", "nullable": true },
+        { "name": "created_at", "type": "timestamptz", "nullable": false }
+      ]
+    }
+  ],
+  "relations": [
+    { "from": "task.plan_id", "to": "plan.id", "on_delete": "restrict", "cardinality": "many-to-one" },
+    { "from": "task_completion.task_id", "to": "task.id", "on_delete": "cascade", "cardinality": "one-to-one" },
+    { "from": "run_log.task_id", "to": "task.id", "on_delete": "cascade", "cardinality": "many-to-one" },
+    { "from": "plan.carried_from_review_id", "to": "review.id", "on_delete": "set null", "cardinality": "many-to-one" }
+  ],
+  "aggregate_definitions": {
+    "target_set": "deleted_at IS NULL 이고 due_date 가 조회 기간(period_start ~ period_end)에 드는 task",
+    "planned_count": "COUNT(target_set)",
+    "done_count": "COUNT(target_set 중 task_completion 이 존재하는 것)",
+    "overdue_count": "COUNT(target_set 중 task_completion 이 없고 due_date < today)",
+    "blocked_count": "COUNT(DISTINCT run_log.task_id) — target_set 중 blocker_reason 이 비어 있지 않은 run_log 를 가진 할 일",
+    "estimate_minutes_sum": "COALESCE(SUM(target_set.estimate_minutes), 0)",
+    "actual_minutes_sum": "COALESCE(SUM(target_set 에 붙은 run_log.actual_minutes), 0)",
+    "diff_minutes": "actual_minutes_sum - estimate_minutes_sum",
+    "drilldown": "각 집계 값은 동일한 조건 생성 함수를 사용하는 목록 화면으로 연결된다 (T06-C83)"
+  },
+  "sort_rule": {
+    "default": "due_date ASC NULLS LAST, priority DESC, id ASC",
+    "note": "마지막 id ASC 가 동점 처리자다. 정렬 기준을 화면에 문장으로 표시한다 (T06-C20)."
+  },
+  "security": {
+    "connection_string": "서버 전용 환경변수에만 저장. NEXT_PUBLIC_ 접두사 사용 금지 (T06-C58).",
+    "rendering": "사용자 입력은 텍스트로만 렌더링한다. HTML 삽입 금지 (T06-C57)."
+  }
+}
