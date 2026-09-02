@@ -56,5 +56,6 @@ test("모든 돌아보기 숫자는 같은 조건의 근거 목록으로 연결�
   for (const metric of ["planned", "done", "overdue", "blocked", "estimate", "actual", "diff"]) {
     assert.match(review, new RegExp(`taskLink\\(\"${metric}\"\\)`));
   }
-  assert.match(read("app/tasks/page.tsx"), /buildTaskWhere\(filter\)/);
+  // 소유자 인자를 함께 넘기는지까지 확인한다. 목록이 남의 자료를 섞지 않는 급소다.
+  assert.match(read("app/tasks/page.tsx"), /buildTaskWhere\(user\.id, filter\)/);
 });

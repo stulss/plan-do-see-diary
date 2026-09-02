@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { requirePageUser } from "@/lib/session";
 import { dateOnly, priorityLabel } from "@/lib/format";
 import { CreatePlanForm } from "@/app/create-forms";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlansPage({ searchParams }: { searchParams: Promise<{ review?: string; title?: string }> }) {
+  const user = await requirePageUser();
   const query = await searchParams;
-  const plans = await db()`SELECT * FROM plan ORDER BY start_date DESC, id DESC`;
+  const plans = await db()`SELECT * FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC`;
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const estimateTotal = plans.reduce((sum, plan) => sum + Number(plan.estimate_minutes ?? 0), 0);
   const activeCount = plans.filter((plan) => dateOnly(plan.start_date as Date) <= today && dateOnly(plan.end_date as Date) >= today).length;

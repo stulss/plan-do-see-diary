@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { buildTaskWhere } from "@/lib/query";
+import { requirePageUser } from "@/lib/session";
+import { buildTaskWhere } from "@/lib/domain/query";
 
 export const dynamic = "force-dynamic";
 
 function today() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()); }
 
 export default async function ReviewPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
+  const user = await requirePageUser();
   const query = await searchParams;
   const to = query.to ?? today();
   const from = query.from ?? `${to.slice(0, 8)}01`;
-  const where = buildTaskWhere({ from, to });
+  const where = buildTaskWhere(user.id, { from, to });
   // API와 같은 집계식을 서버 화면에서도 사용한다. target은 삭제되지 않았고
   // 마감일이 조회 기간에 포함된 할 일만 뜻한다.
   const rows = await db().unsafe(`WITH target AS (

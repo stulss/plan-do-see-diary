@@ -10,11 +10,11 @@ export interface TaskFilter {
   tag?: string;
 }
 
-export function buildTaskWhere(filter: TaskFilter, alias = "t") {
+export function buildTaskWhere(userId: string, filter: TaskFilter, alias = "t") {
   // 돌아보기 숫자와 숫자를 눌러 도착한 목록이 반드시 같은 대상 집합을 쓰도록
   // 모든 할 일 조건을 이 함수 한 곳에서 만든다.
-  const clauses = [`${alias}.deleted_at IS NULL`];
-  const values: string[] = [];
+  const clauses = [`${alias}.user_id = $1`, `${alias}.deleted_at IS NULL`];
+  const values: string[] = [userId];
   const add = (sql: string, value: string) => {
     values.push(value);
     clauses.push(sql.replace("?", `$${values.length}`));

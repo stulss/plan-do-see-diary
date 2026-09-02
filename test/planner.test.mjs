@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getPlannerWindow, shiftAnchor } from "../lib/planner.ts";
+import { getPlannerWindow, shiftAnchor } from "../lib/domain/planner.ts";
 
 test("주간 플래너는 월요일부터 일요일까지 7일을 만든다", () => {
   const result = getPlannerWindow("week", "2026-08-31");

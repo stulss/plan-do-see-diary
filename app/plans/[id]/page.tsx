@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { requirePageUser } from "@/lib/session";
 import { dateOnly, priorityLabel, seoulDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlanDetail({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requirePageUser();
   const { id } = await params;
   const [plans, revisions] = await Promise.all([
-    db()`SELECT p.*, r.period_start, r.period_end FROM plan p LEFT JOIN review r ON r.id=p.carried_from_review_id WHERE p.id=${id}`,
-    db()`SELECT * FROM plan_revision WHERE plan_id=${id} ORDER BY revised_at DESC, id DESC`
+    db()`SELECT p.*, r.period_start, r.period_end FROM plan p LEFT JOIN review r ON r.id=p.carried_from_review_id WHERE p.id=${id} AND p.user_id=${user.id}`,
+    db()`SELECT v.* FROM plan_revision v JOIN plan p ON p.id=v.plan_id WHERE v.plan_id=${id} AND p.user_id=${user.id} ORDER BY v.revised_at DESC, v.id DESC`
   ]);
   const plan = plans[0]; if (!plan) notFound();
   const start = dateOnly(plan.start_date as Date);

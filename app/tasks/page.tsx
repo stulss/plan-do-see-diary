@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { buildTaskWhere, metricLabel, Metric, TaskFilter } from "@/lib/query";
+import { requirePageUser } from "@/lib/session";
+import { buildTaskWhere, metricLabel, Metric, TaskFilter } from "@/lib/domain/query";
 import { dateOnly, priorityLabel } from "@/lib/format";
 import { CreateTaskForm, PlanOption } from "@/app/create-forms";
 
@@ -9,12 +10,13 @@ export const dynamic = "force-dynamic";
 type Search = { from?: string; to?: string; metric?: Metric; q?: string; status?: "done" | "open"; priority?: string; tag?: string };
 
 export default async function TasksPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const user = await requirePageUser();
   const query = await searchParams;
   const filter: TaskFilter = query;
-  const where = buildTaskWhere(filter);
+  const where = buildTaskWhere(user.id, filter);
   const [tasks, plans] = await Promise.all([
     db().unsafe(`SELECT t.*, p.title AS plan_title, c.completed_at, COALESCE((SELECT SUM(r.actual_minutes) FROM run_log r WHERE r.task_id=t.id), 0)::int AS actual_minutes FROM task t JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE ${where.text} ORDER BY t.due_date ASC NULLS LAST, t.priority DESC, t.id ASC`, where.values),
-    db()`SELECT id, title FROM plan ORDER BY start_date DESC, id DESC`
+    db()`SELECT id, title FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC`
   ]);
   const estimateTotal = tasks.reduce((sum, task) => sum + Number(task.estimate_minutes ?? 0), 0);
   const actualTotal = tasks.reduce((sum, task) => sum + Number(task.actual_minutes ?? 0), 0);

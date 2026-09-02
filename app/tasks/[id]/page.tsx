@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { requirePageUser } from "@/lib/session";
 import { dateOnly, priorityLabel, seoulDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function TaskDetail({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requirePageUser();
   const { id } = await params;
   const [tasks, runs] = await Promise.all([
-    db()`SELECT t.*, p.title AS plan_title, c.completed_at FROM task t JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE t.id=${id} AND t.deleted_at IS NULL`,
-    db()`SELECT * FROM run_log WHERE task_id=${id} ORDER BY started_at DESC, id DESC`
+    db()`SELECT t.*, p.title AS plan_title, c.completed_at FROM task t JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE t.id=${id} AND t.user_id=${user.id} AND t.deleted_at IS NULL`,
+    db()`SELECT r.* FROM run_log r JOIN task t ON t.id=r.task_id WHERE r.task_id=${id} AND t.user_id=${user.id} ORDER BY r.started_at DESC, r.id DESC`
   ]);
   const task = tasks[0]; if (!task) notFound();
   const actualTotal = runs.reduce((sum, run) => sum + Number(run.actual_minutes), 0);

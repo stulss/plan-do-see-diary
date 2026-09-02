@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { requirePageUser } from "@/lib/session";
 import { dateOnly } from "@/lib/format";
 import { CreatePlanForm, CreateTaskForm, PlanOption } from "@/app/create-forms";
 import {
@@ -10,7 +11,7 @@ import {
   plannerPeriodLabel,
   PlannerView,
   shiftAnchor
-} from "@/lib/planner";
+} from "@/lib/domain/planner";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,7 @@ function TaskPill({ task, compact = false }: { task: PlannerTask; compact?: bool
 }
 
 export default async function PlannerPage({ searchParams }: { searchParams: Promise<{ view?: string; date?: string }> }) {
+  const user = await requirePageUser();
   const query = await searchParams;
   const today = seoulToday();
   const view = normalizePlannerView(query.view);
@@ -61,10 +63,10 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
     FROM task t
     JOIN plan p ON p.id=t.plan_id
     LEFT JOIN task_completion c ON c.task_id=t.id
-    WHERE t.deleted_at IS NULL AND t.due_date BETWEEN ${plannerWindow.visibleStart} AND ${plannerWindow.visibleEnd}
+    WHERE t.user_id=${user.id} AND t.deleted_at IS NULL AND t.due_date BETWEEN ${plannerWindow.visibleStart} AND ${plannerWindow.visibleEnd}
     ORDER BY t.due_date ASC, t.priority DESC, t.id ASC` as unknown as PlannerTask[];
-  const allPlans = await db()`SELECT id, title, start_date, end_date FROM plan ORDER BY start_date DESC, id DESC` as unknown as PlannerPlan[];
-  const undatedRows = await db()`SELECT COUNT(*)::int AS count FROM task WHERE deleted_at IS NULL AND due_date IS NULL`;
+  const allPlans = await db()`SELECT id, title, start_date, end_date FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC` as unknown as PlannerPlan[];
+  const undatedRows = await db()`SELECT COUNT(*)::int AS count FROM task WHERE user_id=${user.id} AND deleted_at IS NULL AND due_date IS NULL`;
   const plans = allPlans.filter((plan) => dateOnly(plan.start_date) <= plannerWindow.focusEnd && dateOnly(plan.end_date) >= plannerWindow.focusStart);
 
   // 세 보기에서 같은 날짜별 할 일 묶음을 공유해 숫자와 목록 조건이 어긋나지 않게 한다.
