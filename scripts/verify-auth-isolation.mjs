@@ -206,6 +206,33 @@ try {
     body: { login_id: second.login_id, password: changedPassword },
   });
   expectStatus("변경한 비밀번호 로그인", newPasswordLogin, 200);
+  const changedCookie = cookieFrom(newPasswordLogin.response);
+
+  // 내보내기 파일도 세션 소유자의 자료만 담고 내부 소유자·인증 필드를 내보내지 않아야 한다.
+  const exported = await request("/api/export", { cookie: changedCookie });
+  expectStatus("내 자료 내보내기", exported, 200);
+  const exportedText = JSON.stringify(exported.data);
+  const exportSafe = exported.response.headers.get("content-disposition")?.includes("plan-do-see-export.json")
+    && exported.data?.plans?.length === 1
+    && exported.data?.tasks?.length === 1
+    && Number(exported.data.tasks[0]?.id) === secondFixture.taskId
+    && !exportedText.includes('"user_id"')
+    && !/password|session|login_id|email/i.test(exportedText);
+  if (!exportSafe) throw new Error("내보내기 파일의 소유권 또는 DTO 검증에 실패했습니다.");
+
+  // 일회성 계정으로만 삭제를 시험한다. 사용자의 실제 소유자 계정은 이 경로에서 사용하지 않는다.
+  const accountDelete = await request("/api/account", { method: "DELETE", cookie: changedCookie, body: {} });
+  expectStatus("계정과 자료 삭제", accountDelete, 200);
+  const deletedSession = await request("/api/tasks", { cookie: changedCookie });
+  expectStatus("계정 삭제 뒤 이전 세션 재사용", deletedSession, 401);
+  const [deletedState] = await sql`
+    SELECT
+      (SELECT count(*)::int FROM app_user WHERE id = ${second.id}) AS users,
+      (SELECT count(*)::int FROM plan WHERE id = ${secondFixture.planId}) AS plans,
+      (SELECT count(*)::int FROM task WHERE id = ${secondFixture.taskId}) AS tasks
+  `;
+  const accountCascade = deletedState.users === 0 && deletedState.plans === 0 && deletedState.tasks === 0;
+  if (!accountCascade) throw new Error("계정 삭제 뒤 연결 자료가 남았습니다.");
 
   const evidence = {
     verified_at: new Date().toISOString(),
@@ -223,6 +250,8 @@ try {
         logout: { method: "GET", path: "/api/tasks", before: 200, old_session_after: 401 },
         password_change: { status: 200, old_session_after: 401, old_password_login: 401, new_password_login: 200 },
       },
+      export: { status: 200, own_plans: 1, own_tasks: 1, leaked_rows: 0, internal_fields_exposed: false },
+      account_deletion: { status: 200, user_rows_after: 0, plan_rows_after: 0, task_rows_after: 0, old_session_after: 401 },
     },
   };
 
@@ -230,7 +259,7 @@ try {
   await mkdir(evidenceDir, { recursive: true });
   await writeFile(new URL("auth-isolation-results.json", evidenceDir), `${JSON.stringify(evidence, null, 2)}\n`, "utf8");
   console.log("AUTH_ISOLATION=passed");
-  console.log("CHECKS=unauthenticated,signup,duplicate,bcrypt,login-message,cross-user,list,logout-reuse,password-change");
+  console.log("CHECKS=unauthenticated,signup,duplicate,bcrypt,login-message,cross-user,list,logout-reuse,password-change,export,account-delete");
 } finally {
   // 성공·실패와 관계없이 일회성 계정과 연결 자료를 모두 지운다.
   if (createdUserIds.length) {

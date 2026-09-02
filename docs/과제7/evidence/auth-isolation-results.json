@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-09-02T05:11:23.439Z",
+  "verified_at": "2026-09-02T05:44:29.598Z",
   "base_url": "https://plan-do-see-diary.vercel.app",
   "credentials_recorded": false,
   "session_values_recorded": false,
@@ -61,6 +61,20 @@
         "old_password_login": 401,
         "new_password_login": 200
       }
+    },
+    "export": {
+      "status": 200,
+      "own_plans": 1,
+      "own_tasks": 1,
+      "leaked_rows": 0,
+      "internal_fields_exposed": false
+    },
+    "account_deletion": {
+      "status": 200,
+      "user_rows_after": 0,
+      "plan_rows_after": 0,
+      "task_rows_after": 0,
+      "old_session_after": 401
     }
   }
 }
