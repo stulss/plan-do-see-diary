@@ -13,7 +13,7 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | 3 | 로그아웃 뒤 같은 요청 거절 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 같은 `GET /api/tasks`가 200 → 401 | ☑ |
 | 4 | 남의 자료 읽기·수정·삭제 양방향 거절, 목록 유출 없음 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 양방향 404·유출 0건 원본 | ☑ |
 | 5 | 설명서 ①~⑥ 분리, ⑥ 내용 있음 | `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | ☑ |
-| 6 | 서로 다른 실제 날짜 5일 기록과 3일차 전 규칙 변경 | DB 할 일 생성일 8/29·8/30·8/31·9/1·9/2, 규칙 변경 8/31 10:30:55, 3일차 생성 15:30:23 | ☑ 날짜 순서·사용자 원래 시각 확인. 실제 수치·손계산 증거는 별도 |
+| 6 | 서로 다른 실제 날짜 5일 기록과 3일차 전 규칙 변경 | `T07-A05-five-day-rule-change-actual-pc.jpg` — DB 할 일 생성일 5일, 규칙 변경 8/31 10:30:55, 3일차 생성 15:30:23 | ☑ 날짜 순서·사용자 원래 시각 확인. 실제 수치·손계산 증거는 별도 |
 | 7 | 제출물에 비밀번호·토큰·비밀키 원문 없음 | `T07-A04-password-secret-scan-actual-github-pc.jpg` — 실제 환경 변수 값 15개와 Git 이력·추적 파일 비교 0건 | ☑ |
 
 ## 제출용 스크린샷
@@ -41,12 +41,14 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | `T07-A02-auth-isolation-actual-github-pc.jpg` | GitHub에 공개된 실제 인증 격리 JSON 전체 화면 | C94~C125 |
 | `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | GitHub에 공개된 인증 구현 설명서 ①~⑥ 전체 화면 | C91~C93, C101~C115, C126~C130 |
 | `T07-A04-password-secret-scan-actual-github-pc.jpg` | 실제 DB 비밀번호 저장 모양과 실제 환경 변수 값 비밀값 검사 결과 | C103~C106, C113, C131, C46 |
+| `T07-A05-five-day-rule-change-actual-pc.jpg` | DB의 5일 할 일 생성 시각과 2일차 뒤·3일차 앞 60분→90분 규칙 변경 순서 | C07, C10~C12 |
 
 ## 화면이 아닌 원본 검증 자료
 
 - `auth-isolation-results.json`: 자격증명과 세션 값을 기록하지 않은 공개 배포 자동 검증 원본
 - `T07-검증결과-화면.html`: E05~E07·E17 화면을 다시 만들 수 있는 정적 원본
 - `실제_보안검증_결과.md`: 2026-09-03 실제 DB 읽기·비밀값 비교 결과 원본
+- `5일_규칙변경_DB결과.md`: 5일 생성 시각과 규칙 변경 순서만 모은 공개 원본
 
 ## 실제 5일 사용 뒤 추가할 증거
 
