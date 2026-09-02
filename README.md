@@ -13,14 +13,14 @@ P0~P7 구현·검증과 Vercel Supabase 연결, 스키마 적용, 실제 자료 
 
 ## 제출물
 
-| 항목 | 값 |
-|---|---|
-| 결과물 주소 | https://plan-do-see-diary.vercel.app |
-| 소스 저장소 | https://github.com/stulss/plan-do-see-diary |
-| 40자리 commit 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/eb390d565a015e390362b07d2e8dd51b390e8eb2/ |
-| 짧은 확인 방법 4줄 | `docs/검증안내서.md` |
-| AI와 내 판단 3줄 | `docs/AI_3줄.md` |
-| 과제 제출 보고서 | `reports/플랜두씨_다이어리_과제6_제출보고서.pptx`(25장) · `.pdf`(25쪽) |
+| 항목                 | 값                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| 결과물 주소             | https://plan-do-see-diary.vercel.app                                                              |
+| 소스 저장소             | https://github.com/stulss/plan-do-see-diary                                                       |
+| 40자리 commit 고정 URL | [https://github.com/stulss/plan-do-see-diary/commits/356a46034e94084caec3e17eaaf2ab8d98cef7ce/]() |
+| 짧은 확인 방법 4줄        | `docs/검증안내서.md`                                                                                   |
+| AI와 내 판단 3줄        | `docs/AI_3줄.md`                                                                                   |
+| 과제 제출 보고서          | `reports/플랜두씨_다이어리_과제6_제출보고서.pptx`(25장) · `.pdf`(25쪽)                                             |
 
 ## 폴더 구조
 
