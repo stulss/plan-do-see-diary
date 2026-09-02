@@ -44,6 +44,8 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | GitHub에 공개된 인증 구현 설명서 ①~⑥ 전체 화면 | C91~C93, C101~C115, C126~C130 |
 | `T07-A04-password-secret-scan-actual-github-pc.jpg` | 실제 DB 비밀번호 저장 모양과 실제 환경 변수 값 비밀값 검사 결과 | C103~C106, C113, C131, C46 |
 | `T07-A05-five-day-rule-change-actual-pc.jpg` | DB의 5일 할 일 생성 시각과 2일차 뒤·3일차 앞 60분→90분 규칙 변경 순서 | C07, C10~C12 |
+| `T07-A06-plan-revision-actual-db-pc.png` | Vercel Supabase 데이터 편집기의 실제 `plan_revision` 행과 서울 수정 시각 | C10~C12 |
+| `T07-A07-five-day-tasks-actual-db-pc.png` | Vercel Supabase 데이터 편집기의 실제 `task` 5행과 서로 다른 서울 생성일 | C07 |
 
 ## 화면이 아닌 원본 검증 자료
 
@@ -59,6 +61,8 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | 기준 | 추가할 증거 |
 |---|---|
 | C132 | 5일 화면 합계·평균과 `5일_사용기록.md` 손계산 대조 화면 |
+
+`app_user`와 `user_session` 표는 이메일·비밀번호 해시 전체·세션 해시가 노출될 수 있어 원본 표를 직접 촬영하지 않는다. 카드 2·3은 비밀값을 가린 `T07-A02`~`A04` 실제 검증 화면을 제출한다.
 
 ## 이전 촬영본
 
