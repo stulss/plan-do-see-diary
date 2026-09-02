@@ -13,7 +13,7 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | 3 | 로그아웃 뒤 같은 요청 거절 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 같은 `GET /api/tasks`가 200 → 401 | ☑ |
 | 4 | 남의 자료 읽기·수정·삭제 양방향 거절, 목록 유출 없음 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 양방향 404·유출 0건 원본 | ☑ |
 | 5 | 설명서 ①~⑥ 분리, ⑥ 내용 있음 | `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | ☑ |
-| 6 | 서로 다른 실제 날짜 5일 기록과 3일차 전 규칙 변경 | `T07-E09-planner-week-pc.jpg`, `T07-E12-plan-detail-pc.jpg`는 현재 화면 참고용일 뿐 최종 증거가 아님 | ☐ 실제 5일 사용 대기 |
+| 6 | 서로 다른 실제 날짜 5일 기록과 3일차 전 규칙 변경 | `T07-E09-planner-week-pc.jpg`, `T07-E10-planner-month-pc.jpg`에서 마감일 5개 확인, `T07-E12-plan-detail-pc.jpg`에서 수정 이력 확인 | ◐ DB 마감일 5개 확인. 완료일 1개·실행일 0개이며 변경 시점 조건은 미충족 |
 | 7 | 제출물에 비밀번호·토큰·비밀키 원문 없음 | `T07-A04-password-secret-scan-actual-github-pc.jpg` — 실제 환경 변수 값 15개와 Git 이력·추적 파일 비교 0건 | ☑ |
 
 ## 제출용 스크린샷
