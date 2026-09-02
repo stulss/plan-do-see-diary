@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { requirePageUser } from "@/lib/session";
+import { getSessionUser } from "@/lib/session";
 import { dateOnly } from "@/lib/format";
 import { CreatePlanForm, CreateTaskForm, PlanOption } from "@/app/create-forms";
 import { DraggableTask, TaskDropZone } from "@/app/planner-dnd";
@@ -57,7 +57,12 @@ function TaskPill({ task, compact = false }: { task: PlannerTask; compact?: bool
 }
 
 export default async function PlannerPage({ searchParams }: { searchParams: Promise<{ view?: string; date?: string }> }) {
-  const user = await requirePageUser();
+  const user = await getSessionUser();
+  if (!user) return <section className="landing">
+    <div><span className="eyebrow">PLAN · DO · SEE</span><h1>계획하고, 실행하고,<br />돌아보는 하루</h1><p className="page-lead">내 일정과 기록은 로그인한 나에게만 보입니다.</p></div>
+    <div className="landing-actions"><Link className="landing-primary" href="/login">로그인</Link><Link className="landing-secondary" href="/signup">회원가입</Link></div>
+    <div className="landing-features"><span><strong>PLAN</strong> 계획과 할 일을 정리</span><span><strong>DO</strong> 시작·종료 시각으로 자동 계산</span><span><strong>SEE</strong> 예상과 실제를 비교</span></div>
+  </section>;
   const query = await searchParams;
   const today = seoulToday();
   const view = normalizePlannerView(query.view);
@@ -65,11 +70,11 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
   const plannerWindow = getPlannerWindow(view, anchor);
 
   const tasks = await db()`
-    SELECT t.id, t.title, t.due_date, t.priority, t.estimate_minutes, t.start_minute, t.end_minute, p.title AS plan_title,
+    SELECT t.id, t.title, t.due_date, t.priority, t.estimate_minutes, t.start_minute, t.end_minute, COALESCE(p.title, '계획 없음') AS plan_title,
       c.completed_at,
       COALESCE((SELECT SUM(r.actual_minutes) FROM run_log r WHERE r.task_id=t.id), 0)::int AS actual_minutes
     FROM task t
-    JOIN plan p ON p.id=t.plan_id
+    LEFT JOIN plan p ON p.id=t.plan_id
     LEFT JOIN task_completion c ON c.task_id=t.id
     WHERE t.user_id=${user.id} AND t.deleted_at IS NULL AND t.due_date BETWEEN ${plannerWindow.visibleStart} AND ${plannerWindow.visibleEnd}
     ORDER BY t.due_date ASC, t.priority DESC, t.id ASC` as unknown as PlannerTask[];

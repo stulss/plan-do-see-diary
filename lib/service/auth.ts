@@ -98,3 +98,21 @@ export async function changeNickname(userId: string, nickname: string) {
     throw error;
   }
 }
+
+export async function recoverLoginId(nickname: string, email: string) {
+  const problem = checkNickname(nickname) ?? checkEmail(email);
+  if (problem) return fail(400, problem);
+  const user = await users.findByRecovery(null, normalizeNickname(nickname), normalizeEmail(email));
+  return user ? { ok: true as const, value: { login_id: user.login_id } } : fail(404, "일치하는 계정을 찾지 못했습니다.");
+}
+
+export async function recoverPassword(loginId: string, nickname: string, email: string, next: string) {
+  const problem = checkLoginId(loginId) ?? checkNickname(nickname) ?? checkEmail(email) ?? checkPassword(next);
+  if (problem) return fail(400, problem);
+  const passwordHash = await hash(next, BCRYPT_COST);
+  const user = await users.findByRecovery(normalizeLoginId(loginId), normalizeNickname(nickname), normalizeEmail(email));
+  if (!user) return fail(404, "입력한 정보와 일치하는 계정을 찾지 못했습니다.");
+  await users.updatePasswordHash(user.id, passwordHash);
+  await sessions.removeAllForUser(user.id);
+  return { ok: true as const, value: { changed: true } };
+}

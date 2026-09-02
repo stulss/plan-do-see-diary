@@ -10,8 +10,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!user) return unauthorized();
     const body = await requestValues(request);
     const dueDate = calendarDate(value(body, "due_date"));
-    // 드롭으로는 날짜만 바꾸며 제목·시간·실행 기록은 건드리지 않는다.
-    const rows = await db()`UPDATE task SET due_date=${dueDate}, updated_at=now()
+    // 날짜 범위 길이를 유지한 채 마감일을 드롭한 날짜로 옮긴다.
+    const rows = await db()`UPDATE task SET start_date=${dueDate}::date - (due_date - start_date), due_date=${dueDate}, updated_at=now()
       WHERE id=${idParam((await params).id)} AND user_id=${user.id} AND deleted_at IS NULL
       RETURNING id, due_date`;
     return rows[0] ? NextResponse.json(rows[0]) : notFound("할 일을 찾지 못했습니다.");

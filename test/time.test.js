@@ -13,3 +13,9 @@ test("실행 시작·종료 시각으로 자정을 넘긴 실제 분도 계산�
   assert.equal(runDuration("2026-09-02T23:30", "2026-09-03T00:15").minutes, 45);
   assert.throws(() => runDuration("2026-09-02T10:00", "2026-09-02T09:59"), /늦어야/);
 });
+
+test("할 일 시작일은 마감일보다 늦을 수 없다", async () => {
+  const { taskDateRange } = await import("../lib/domain/time.ts");
+  assert.deepEqual(taskDateRange("2026-09-02", "2026-09-04"), { startDate: "2026-09-02", endDate: "2026-09-04" });
+  assert.throws(() => taskDateRange("2026-09-04", "2026-09-02"), /마감일/);
+});

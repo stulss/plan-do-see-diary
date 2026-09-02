@@ -1,6 +1,6 @@
 {
-  "verified_at": "2026-09-02T06:33:55.896Z",
-  "base_url": "https://plan-do-see-diary.vercel.app",
+  "verified_at": "2026-09-02T06:47:49.786Z",
+  "base_url": "http://localhost:3000",
   "credentials_recorded": false,
   "session_values_recorded": false,
   "checks": {
@@ -55,6 +55,14 @@
       "moved_to": "2026-09-03",
       "persisted": true,
       "restored": true
+    },
+    "account_recovery": {
+      "id_lookup_status": 200,
+      "matched": true
+    },
+    "optional_plan": {
+      "status": 201,
+      "stored_plan_id": null
     },
     "session_revocation": {
       "logout": {

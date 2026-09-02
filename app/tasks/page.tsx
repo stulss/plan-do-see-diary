@@ -16,7 +16,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
   const filter: TaskFilter = query;
   const where = buildTaskWhere(user.id, filter);
   const [tasks, plans] = await Promise.all([
-    db().unsafe(`SELECT t.*, p.title AS plan_title, c.completed_at, COALESCE((SELECT SUM(r.actual_minutes) FROM run_log r WHERE r.task_id=t.id), 0)::int AS actual_minutes FROM task t JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE ${where.text} ORDER BY t.due_date ASC NULLS LAST, t.priority DESC, t.id ASC`, where.values),
+    db().unsafe(`SELECT t.*, COALESCE(p.title, '계획 없음') AS plan_title, c.completed_at, COALESCE((SELECT SUM(r.actual_minutes) FROM run_log r WHERE r.task_id=t.id), 0)::int AS actual_minutes FROM task t LEFT JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE ${where.text} ORDER BY t.due_date ASC NULLS LAST, t.priority DESC, t.id ASC`, where.values),
     db()`SELECT id, title FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC`
   ]);
   const estimateTotal = tasks.reduce((sum, task) => sum + Number(task.estimate_minutes ?? 0), 0);
@@ -54,7 +54,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
           : `${clockText(Number(task.start_minute))}–${clockText(Number(task.end_minute))}`;
         return <article className={`task-row priority-${Number(task.priority)} ${task.completed_at ? "is-done" : ""}`} key={String(task.id)}>
           <div className="task-row-main"><Link href={`/tasks/${task.id}`}>{String(task.title)}</Link><span>{String(task.plan_title)}</span></div>
-          <div className="task-fact"><small>마감</small><span>{task.due_date ? dateOnly(task.due_date as Date).replaceAll("-", ".") : "없음"}</span></div>
+          <div className="task-fact"><small>기간</small><span>{dateOnly(task.start_date as Date).replaceAll("-", ".")} → {dateOnly(task.due_date as Date).replaceAll("-", ".")}</span></div>
           <div className="task-fact"><small>시간</small><span>{plannedTime}</span><span>{estimate}분 → {actual}분</span><em className={diff > 0 ? "over" : ""}>{diff > 0 ? "+" : ""}{diff}분</em></div>
           <div className="task-state"><span className={`badge ${task.completed_at ? "" : "pending"}`}>{task.completed_at ? "완료" : "진행 중"}</span><small>우선순위 {priorityLabel(Number(task.priority))}</small></div>
           <form className="compact-action" action={`/api/tasks/${task.id}/completion${task.completed_at ? "?_method=DELETE" : ""}`} method="post"><button>{task.completed_at ? "되돌리기" : "완료"}</button></form>

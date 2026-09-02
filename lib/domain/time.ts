@@ -30,6 +30,13 @@ export function calendarDate(raw: string) {
   return raw;
 }
 
+export function taskDateRange(start: string, end: string) {
+  const startDate = calendarDate(start);
+  const endDate = calendarDate(end);
+  if (startDate > endDate) throw new Error("마감일은 시작일보다 빠를 수 없습니다.");
+  return { startDate, endDate };
+}
+
 // datetime-local에는 시간대가 없으므로 서울 시각으로 해석하고 실제 소요 분을 서버에서 계산한다.
 export function runDuration(start: string, end: string) {
   if (!LOCAL_DATE_TIME_PATTERN.test(start) || !LOCAL_DATE_TIME_PATTERN.test(end)) {

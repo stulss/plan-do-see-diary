@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, databaseError } from "@/lib/db";
 import { idParam, integer, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
-import { calendarDate, taskSchedule } from "@/lib/domain/time";
+import { taskDateRange, taskSchedule } from "@/lib/domain/time";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -13,7 +13,7 @@ export async function GET(_: NextRequest, { params }: Context) {
     const id = idParam((await params).id);
     // 실행 기록도 부모 할 일의 소유자를 통해 걸러진다. 자식 자원만 따로 열 수 없다.
     const [tasks, runs] = await Promise.all([
-      db()`SELECT t.*, p.title AS plan_title, c.completed_at FROM task t JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE t.id=${id} AND t.user_id=${user.id} AND t.deleted_at IS NULL`,
+      db()`SELECT t.*, COALESCE(p.title, '계획 없음') AS plan_title, c.completed_at FROM task t LEFT JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE t.id=${id} AND t.user_id=${user.id} AND t.deleted_at IS NULL`,
       db()`SELECT r.* FROM run_log r JOIN task t ON t.id=r.task_id WHERE r.task_id=${id} AND t.user_id=${user.id} ORDER BY r.started_at DESC, r.id DESC`
     ]);
     return tasks[0] ? NextResponse.json({ ...tasks[0], runs }) : notFound("할 일을 찾지 못했습니다.");
@@ -23,11 +23,11 @@ export async function GET(_: NextRequest, { params }: Context) {
 async function update(request: NextRequest, id: string, userId: string) {
   const body = await requestValues(request);
   const tags = value(body, "tags", false).split(",").map((tag) => tag.trim()).filter(Boolean);
-  const dueDate = calendarDate(value(body, "due_date"));
+  const dates = taskDateRange(value(body, "start_date"), value(body, "due_date"));
   const schedule = taskSchedule(value(body, "start_time"), value(body, "end_time"));
   // 소유자 조건이 UPDATE 의 WHERE 에 있으므로, 남의 할 일이면 아무것도 바뀌지 않는다.
   const rows = await db()`UPDATE task SET title=${value(body, "title")}, note=${value(body, "note", false) || null},
-    due_date=${dueDate}, start_minute=${schedule.startMinute}, end_minute=${schedule.endMinute},
+    start_date=${dates.startDate}, due_date=${dates.endDate}, start_minute=${schedule.startMinute}, end_minute=${schedule.endMinute},
     priority=${integer(body, "priority")}, tags=${tags}, estimate_minutes=${schedule.minutes}, updated_at=now()
     WHERE id=${idParam(id)} AND user_id=${userId} AND deleted_at IS NULL RETURNING *`;
   if (!rows[0]) return notFound("할 일을 찾지 못했습니다.");

@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [loginIdState, setLoginIdState] = useState<Availability>(null);
   const [nicknameState, setNicknameState] = useState<Availability>(null);
   const rules = passwordChecklist(password);
@@ -76,10 +77,11 @@ export default function SignupPage() {
         <input name="email" type="email" autoComplete="email" required maxLength={200} />
       </label>
 
-      <label>비밀번호
-        <input name="password" type="password" autoComplete="new-password" required maxLength={128}
+      <label>비밀번호<span className="password-control">
+        <input name="password" type={passwordVisible ? "text" : "password"} autoComplete="new-password" required maxLength={128}
           value={password} onChange={(event) => setPassword(event.target.value)} />
-      </label>
+        <button type="button" className="field-button" aria-pressed={passwordVisible} onClick={() => setPasswordVisible((value) => !value)}>{passwordVisible ? "숨기기" : "보기"}</button>
+      </span></label>
       <ul className="muted">
         <li>{rules.length ? "O" : "X"} 10자 이상</li>
         <li>{rules.upper ? "O" : "X"} 영문 대문자 1자 이상</li>

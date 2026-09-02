@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PasswordField } from "@/app/form-controls";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -35,14 +36,13 @@ export default function LoginPage() {
       <label>아이디
         <input name="login_id" autoComplete="username" required maxLength={20} />
       </label>
-      <label>비밀번호
-        <input name="password" type="password" autoComplete="current-password" required maxLength={128} />
-      </label>
+      <PasswordField />
       {error ? <p className="error" role="alert">{error}</p> : null}
       <div className="editor-actions">
         <button type="submit" disabled={busy}>{busy ? "확인하는 중" : "로그인"}</button>
         <Link href="/signup">계정 만들기</Link>
       </div>
+      <Link className="auth-help-link" href="/recover">아이디·비밀번호 찾기</Link>
     </form>
   </section>;
 }

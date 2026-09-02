@@ -21,6 +21,13 @@ export async function findById(id: string) {
   return rows[0] ?? null;
 }
 
+export async function findByRecovery(loginId: string | null, nickname: string, email: string) {
+  const rows = loginId
+    ? await db()<UserRow[]>`SELECT * FROM app_user WHERE lower(login_id)=lower(${loginId}) AND nickname=${nickname} AND lower(email)=lower(${email}) LIMIT 1`
+    : await db()<UserRow[]>`SELECT * FROM app_user WHERE nickname=${nickname} AND lower(email)=lower(${email}) LIMIT 1`;
+  return rows[0] ?? null;
+}
+
 // 중복확인 응답은 사용 가능 여부만 돌려준다. 다른 정보를 함께 내보내지 않는다.
 export async function loginIdTaken(loginId: string) {
   const rows = await db()`SELECT 1 FROM app_user WHERE lower(login_id) = lower(${loginId}) LIMIT 1`;

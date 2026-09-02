@@ -76,6 +76,7 @@ async function createFixture(account) {
       plan_id: plan.data.id,
       title: `__AUTH_VERIFY_TASK_${account.alias}__`,
       note: "인증 격리 자동 검증 후 삭제",
+      start_date: "2026-09-02",
       due_date: "2026-09-02",
       priority: 2,
       tags: "auth-verify",
@@ -101,6 +102,7 @@ async function crossChecks(actor, target, fixture) {
     body: {
       title: "__UNAUTHORIZED_CHANGE__",
       note: "거절되어야 함",
+      start_date: "2026-09-02",
       due_date: "2026-09-02",
       priority: 3,
       tags: "blocked",
@@ -188,6 +190,17 @@ try {
     await crossChecks(first, second, secondFixture),
     await crossChecks(second, first, firstFixture),
   ];
+  const unplanned = await request("/api/tasks", {
+    method: "POST", cookie: first.cookie,
+    body: { title: "__AUTH_VERIFY_UNPLANNED__", note: "검증 후 삭제", start_date: "2026-09-02", due_date: "2026-09-02", priority: 1, tags: "auth-verify", start_time: "10:00", end_time: "10:01" },
+  });
+  expectStatus("계획 없는 할 일 생성", unplanned, 201);
+  const [unplannedRow] = await sql`SELECT plan_id FROM task WHERE id=${unplanned.data.id} AND user_id=${first.id}`;
+  if (!unplannedRow || unplannedRow.plan_id !== null) throw new Error("계획 없는 할 일이 올바르게 저장되지 않았습니다.");
+
+  const recoveredId = await request("/api/auth/recover-id", { method: "POST", body: { nickname: first.nickname, email: first.email } });
+  expectStatus("아이디 찾기", recoveredId, 200);
+  if (recoveredId.data?.login_id !== first.login_id) throw new Error("아이디 찾기 결과가 일치하지 않습니다.");
 
   const wrongPassword = await request("/api/auth/login", {
     method: "POST",
@@ -269,6 +282,8 @@ try {
       login_failure_message_same: sameLoginFailure,
       isolation: directions,
       planner_date_move: dateMove,
+      account_recovery: { id_lookup_status: 200, matched: true },
+      optional_plan: { status: 201, stored_plan_id: null },
       session_revocation: {
         logout: { method: "GET", path: "/api/tasks", before: 200, old_session_after: 401 },
         password_change: { status: 200, old_session_after: 401, old_password_login: 401, new_password_login: 200 },

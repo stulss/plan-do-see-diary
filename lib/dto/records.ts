@@ -12,7 +12,7 @@ export const publicPlanRevision = (row: Row) =>
     "success_criteria", "estimate_minutes", "revised_at"]);
 
 export const publicTask = (row: Row) =>
-  pick(row, ["id", "plan_id", "title", "note", "due_date", "priority", "tags",
+  pick(row, ["id", "plan_id", "title", "note", "start_date", "due_date", "priority", "tags",
     "start_minute", "end_minute", "estimate_minutes", "created_at", "updated_at", "deleted_at"]);
 
 export const publicCompletion = (row: Row) => pick(row, ["task_id", "completed_at"]);
