@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>과제 7 검증 결과 증거</title>
+  <style>
+    :root { color-scheme: light; font-family: Pretendard, "Noto Sans KR", system-ui, sans-serif; color: #17212b; background: #eef2f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding-bottom: 450px; }
+    section { min-height: 900px; padding: 54px 64px; scroll-margin-top: 0; }
+    section:nth-child(2) { background: #f8fafc; }
+    section:nth-child(3) { background: #eef7f4; }
+    .eyebrow { margin: 0 0 10px; color: #27705f; font-weight: 800; letter-spacing: .08em; }
+    h1 { margin: 0 0 12px; font-size: 38px; }
+    .lead { margin: 0 0 28px; color: #52606d; font-size: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    article { padding: 22px; border: 1px solid #d8e0e7; border-radius: 18px; background: white; box-shadow: 0 8px 24px rgba(23,33,43,.06); }
+    article.wide { grid-column: 1 / -1; }
+    h2 { margin: 0 0 15px; font-size: 21px; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 11px 20px; margin: 0; }
+    dt { color: #52606d; }
+    dd { margin: 0; font-weight: 800; }
+    .pass { color: #087f5b; }
+    .pending { color: #9a6700; }
+    .note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #e6ebef; color: #63707c; font-size: 14px; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .92em; }
+    footer { margin-top: 22px; color: #6b7680; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <section id="auth">
+    <p class="eyebrow">과제 7 · 카드 1~3</p>
+    <h1>인증·비밀번호·세션 검증</h1>
+    <p class="lead">공개 배포 자동 검증 결과를 비밀값 없이 요약했다.</p>
+    <div class="grid">
+      <article>
+        <h2>가입·로그인 차단 (C94~C99)</h2>
+        <dl>
+          <dt>일회성 계정 2개 가입</dt><dd class="pass">201</dd>
+          <dt>중복 가입</dt><dd class="pass">409</dd>
+          <dt>미로그인 자료 API</dt><dd class="pass">401</dd>
+          <dt>없는 아이디/틀린 비밀번호 문구</dt><dd class="pass">동일</dd>
+        </dl>
+      </article>
+      <article>
+        <h2>비밀번호 저장 (C101~C107)</h2>
+        <dl>
+          <dt>방식</dt><dd>bcryptjs 3.0.3</dd>
+          <dt>작업 계수</dt><dd class="pass">12</dd>
+          <dt>bcrypt 형태</dt><dd class="pass">확인</dd>
+          <dt>같은 비밀번호의 저장값</dt><dd class="pass">서로 다름</dd>
+        </dl>
+        <p class="note">비밀번호 원문과 전체 해시는 증거·로그에 기록하지 않았다.</p>
+      </article>
+      <article class="wide">
+        <h2>세션 폐기 (C108~C115)</h2>
+        <dl>
+          <dt>로그아웃 전 같은 요청</dt><dd class="pass">200</dd>
+          <dt>로그아웃 뒤 이전 세션</dt><dd class="pass">401</dd>
+          <dt>비밀번호 변경 뒤 이전 세션</dt><dd class="pass">401</dd>
+          <dt>이전 비밀번호 / 새 비밀번호 로그인</dt><dd class="pass">401 / 200</dd>
+          <dt>세션 값·자격증명 기록</dt><dd class="pass">0건</dd>
+        </dl>
+        <p class="note">원본: <code>auth-isolation-results.json</code> · 검증 시각: 2026-09-02T06:56:55.659Z</p>
+      </article>
+    </div>
+    <footer>전체 소스 상태: <code>4fcddc1f1487052de72953b837bca35019d03578</code></footer>
+  </section>
+
+  <section id="isolation">
+    <p class="eyebrow">과제 7 · 카드 4</p>
+    <h1>양방향 자료 격리 검증</h1>
+    <p class="lead">두 일회성 계정 사이에서 읽기·수정·삭제·날짜 이동을 양쪽 방향으로 검사했다.</p>
+    <div class="grid">
+      <article>
+        <h2>계정 A → 계정 B (C117~C125)</h2>
+        <dl>
+          <dt>읽기</dt><dd class="pass">404</dd>
+          <dt>수정</dt><dd class="pass">404</dd>
+          <dt>삭제</dt><dd class="pass">404</dd>
+          <dt>날짜 이동</dt><dd class="pass">404</dd>
+          <dt>거절 전/후 상대 자료</dt><dd class="pass">1 / 1</dd>
+          <dt>목록 유출</dt><dd class="pass">0건</dd>
+        </dl>
+      </article>
+      <article>
+        <h2>계정 B → 계정 A (C120~C125)</h2>
+        <dl>
+          <dt>읽기</dt><dd class="pass">404</dd>
+          <dt>수정</dt><dd class="pass">404</dd>
+          <dt>삭제</dt><dd class="pass">404</dd>
+          <dt>날짜 이동</dt><dd class="pass">404</dd>
+          <dt>거절 전/후 상대 자료</dt><dd class="pass">1 / 1</dd>
+          <dt>목록 유출</dt><dd class="pass">0건</dd>
+        </dl>
+      </article>
+      <article class="wide">
+        <h2>세션에서만 사용자 확정 (C122~C126)</h2>
+        <dl>
+          <dt>본문에 넣은 다른 사용자 필드</dt><dd class="pass">양방향 무시</dd>
+          <dt>거절 뒤 대상 자료 변경</dt><dd class="pass">없음</dd>
+          <dt>목록 공통 소유자 조건</dt><dd><code>lib/domain/query.ts</code></dd>
+          <dt>한 건 소유자 조건</dt><dd><code>app/api/tasks/[id]/route.ts</code></dd>
+        </dl>
+        <p class="note">검증에 사용한 계정과 자료는 결과 확인 직후 삭제했다. 비밀번호·세션 값은 저장하지 않았다.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="quality">
+    <p class="eyebrow">과제 7 · 결과·제출 상태</p>
+    <h1>내보내기·삭제·품질 검사</h1>
+    <p class="lead">현재 자동 검증으로 증명 가능한 항목과 실제 5일 사용 뒤에만 가능한 항목을 구분했다.</p>
+    <div class="grid">
+      <article>
+        <h2>내 자료 관리 (C133~C134)</h2>
+        <dl>
+          <dt>JSON 내보내기</dt><dd class="pass">200</dd>
+          <dt>타 계정 자료 유출</dt><dd class="pass">0건</dd>
+          <dt>내부 필드 노출</dt><dd class="pass">없음</dd>
+          <dt>계정 삭제 뒤 사용자/계획/할 일</dt><dd class="pass">0 / 0 / 0</dd>
+          <dt>삭제 뒤 이전 세션</dt><dd class="pass">401</dd>
+        </dl>
+      </article>
+      <article>
+        <h2>현재 소스 검사</h2>
+        <dl>
+          <dt><code>npm test</code></dt><dd class="pass">27/27</dd>
+          <dt><code>npm run typecheck</code></dt><dd class="pass">통과</dd>
+          <dt><code>npm run build</code></dt><dd class="pass">통과</dd>
+          <dt><code>npm audit --omit=dev</code></dt><dd class="pass">취약점 0</dd>
+          <dt>DB 시각 표시</dt><dd class="pass">Asia/Seoul</dd>
+        </dl>
+      </article>
+      <article class="wide">
+        <h2>실제 사용 뒤 캡처할 항목</h2>
+        <dl>
+          <dt>서로 다른 실제 날짜 정확히 5일 (C07)</dt><dd class="pending">사용자 기록 대기</dd>
+          <dt>2일차 뒤·3일차 앞 규칙 변경 시각·이유 (C10~C12)</dt><dd class="pending">사용자 기록 대기</dd>
+          <dt>화면 합계·평균과 손계산 대조 (C132)</dt><dd class="pending">5일 수치 대기</dd>
+        </dl>
+        <p class="note">실제 자료는 사용자가 직접 입력해야 하므로, 아직 없는 내용을 증거처럼 만들지 않았다.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="documents">
+    <p class="eyebrow">과제 7 · 카드 5·공개 제출</p>
+    <h1>설명서·제출물·5일 사용 상태</h1>
+    <p class="lead">요구사항 매핑의 문서 증거와 실제 사용 증거를 한 화면에서 구분했다.</p>
+    <div class="grid">
+      <article>
+        <h2>설명서 묶음 (C127~C131)</h2>
+        <dl>
+          <dt>인증 구현 설명서 ①~⑥</dt><dd class="pass">작성 완료</dd>
+          <dt>가입·로그인·로그아웃·조회 흐름</dt><dd class="pass">경로 명시</dd>
+          <dt>성공·거절 확인 5가지</dt><dd class="pass">상태코드 기록</dd>
+          <dt>못 막은 위험</dt><dd class="pass">4개 명시</dd>
+          <dt>비밀값 원문</dt><dd class="pass">0건</dd>
+        </dl>
+      </article>
+      <article>
+        <h2>공개 제출 요건 (C01·C39·C40·C77·C78)</h2>
+        <dl>
+          <dt>공개 앱</dt><dd class="pass">HTTP 200</dd>
+          <dt>공개 저장소</dt><dd class="pass">HTTP 200</dd>
+          <dt>검증 안내</dt><dd class="pass">4줄 분리</dd>
+          <dt>AI와 내 판단</dt><dd class="pass">3줄 분리</dd>
+          <dt>과제 6 고정 commit</dt><dd class="pass">조상 확인</dd>
+        </dl>
+        <p class="note"><code>docs/과제7/검증안내서.md</code> · <code>docs/과제7/AI_3줄.md</code></p>
+      </article>
+      <article class="wide">
+        <h2>5일 사용 규칙과 실제 증거</h2>
+        <dl>
+          <dt>질문·지표·단위·결측·중복·이상치·반올림·월요일 시작 (C04~C06·C08·C23~C27)</dt><dd class="pass">규칙 고정</dd>
+          <dt>전후 같은 지표·단위·계산 규칙 (C09·C13~C15)</dt><dd class="pass">문서 위치 고정</dd>
+          <dt>정확히 5일·변경 시각과 이유·손계산 대조 (C07·C10~C12·C132)</dt><dd class="pending">실제 기록 대기</dd>
+        </dl>
+        <p class="note">실제 사용 증거는 사용자가 기록을 완료한 뒤 플래너·돌아보기 화면과 <code>5일_사용기록.md</code>를 다시 캡처한다.</p>
+      </article>
+    </div>
+  </section>
+</body>
+</html>
