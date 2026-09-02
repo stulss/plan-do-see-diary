@@ -36,7 +36,8 @@ export function TaskDropZone({ date, className = "", children }: { date: string;
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ due_date: date })
     });
-    setMessage(response.ok ? `${date}로 옮겼습니다.` : "날짜를 바꾸지 못했습니다.");
+    // 성공하면 옮겨진 카드 자체가 결과이므로 별도 문구를 남기지 않는다.
+    setMessage(response.ok ? "" : "날짜를 바꾸지 못했습니다.");
     if (response.ok) router.refresh();
   }
 

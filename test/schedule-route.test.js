@@ -4,8 +4,10 @@ import { readFile } from "node:fs/promises";
 
 test("드래그 날짜 변경은 로그인 사용자 소유의 할 일만 수정한다", async () => {
   const source = await readFile(new URL("../app/api/tasks/[id]/date/route.ts", import.meta.url), "utf8");
+  const plannerSource = await readFile(new URL("../app/planner-dnd.tsx", import.meta.url), "utf8");
   assert.match(source, /WHERE id=.*AND user_id=.*AND deleted_at IS NULL/s);
   assert.match(source, /SET start_date=.*due_date=.*updated_at=now\(\)/s);
+  assert.doesNotMatch(plannerSource, /로 옮겼습니다/);
 });
 
 test("할 일은 계획 없이도 만들 수 있고 선택한 계획은 소유자를 확인한다", async () => {
