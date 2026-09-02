@@ -24,3 +24,9 @@ test("예상·실제 시간은 클라이언트가 보낸 분 값을 믿지 않�
   assert.match(run, /runDuration\(value\(body, "started_at"\), value\(body, "ended_at"\)\)/);
   assert.doesNotMatch(run, /integer\(body, "actual_minutes"/);
 });
+
+test("날짜 달력은 보이는 입력 박스를 직접 누를 때만 연다", async () => {
+  const source = await readFile(new URL("../app/form-controls.tsx", import.meta.url), "utf8");
+  assert.match(source, /onPointerDown=.*pressedInsideInput\.current = true/s);
+  assert.match(source, /if \(pressedInsideInput\.current\) ref\.current\?\.showPicker/s);
+});

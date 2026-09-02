@@ -12,8 +12,14 @@ export function PasswordField({ name = "password", label = "비밀번호", autoC
 
 export function DateInput({ name, defaultValue, required = true }: { name: string; defaultValue?: string; required?: boolean }) {
   const ref = useRef<HTMLInputElement>(null);
+  const pressedInsideInput = useRef(false);
   return <input ref={ref} type="date" name={name} required={required} defaultValue={defaultValue}
-    onClick={() => ref.current?.showPicker?.()} />;
+    // label 글자를 누른 합성 클릭은 제외하고, 보이는 입력 박스를 직접 누를 때만 달력을 연다.
+    onPointerDown={() => { pressedInsideInput.current = true; }}
+    onClick={() => {
+      if (pressedInsideInput.current) ref.current?.showPicker?.();
+      pressedInsideInput.current = false;
+    }} />;
 }
 
 export function SubmitButton({ children, pendingText = "처리하는 중…", disabled = false }: { children: React.ReactNode; pendingText?: string; disabled?: boolean }) {
