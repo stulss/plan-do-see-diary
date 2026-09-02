@@ -46,6 +46,17 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | `T07-A05-five-day-rule-change-actual-pc.jpg` | DB의 5일 할 일 생성 시각과 2일차 뒤·3일차 앞 60분→90분 규칙 변경 순서 | C07, C10~C12 |
 | `T07-A06-plan-revision-actual-db-pc.png` | Vercel Supabase 데이터 편집기의 실제 `plan_revision` 행과 서울 수정 시각 | C10~C12 |
 | `T07-A07-five-day-tasks-actual-db-pc.png` | Vercel Supabase 데이터 편집기의 실제 `task` 5행과 서로 다른 서울 생성일 | C07 |
+| `T07-A08-auth-owner-db-summary-pc.png` | 읽기 전용 실제 DB 결과: bcrypt 형식·60자·평문 아님, 세션 SHA-256 길이·만료, 소유자 미귀속 0건, 서울 5일, 수정 시각 | C100, C103, C111, C07, C10 |
+| `T07-A09-database-schema-actual-pc.png` | 실제 DB 스키마 관계도: `app_user`, `user_session`, `plan`, `task`, `review`, `run_log`, `task_completion`, `plan_revision` | C100, C108, C111, C123 |
+
+## DB 화면으로 교체한 증거
+
+| 기존 증거 | DB 화면을 우선 사용하는 항목 | 유지 이유 |
+|---|---|---|
+| `T07-E05-auth-session-results-pc.jpg` | 비밀번호 저장·세션 구조는 `T07-A08`, `T07-A09` 우선 | 가입·로그아웃 뒤 요청 거절은 API 동작이라 E05·A02 유지 |
+| `T07-E06-isolation-results-pc.jpg` | 소유자 컬럼·미귀속 0건은 `T07-A08`, `T07-A09` 우선 | 양방향 읽기·수정·삭제 404는 DB 사진만으로 증명할 수 없어 A02 유지 |
+| `T07-A04-password-secret-scan-actual-github-pc.jpg` | bcrypt 저장 형태는 `T07-A08` 우선 | Git 이력·추적 파일의 비밀값 0건은 DB 사진으로 증명할 수 없어 A04 유지 |
+| `T07-A05-five-day-rule-change-actual-pc.jpg` | 원자료는 `T07-A06`, `T07-A07`, DB 요약은 `T07-A08` 우선 | 날짜와 규칙 변경의 한눈 비교용 보조 화면으로 유지 |
 
 ## 화면이 아닌 원본 검증 자료
 
@@ -62,7 +73,7 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 |---|---|
 | C132 | 5일 화면 합계·평균과 `5일_사용기록.md` 손계산 대조 화면 |
 
-`app_user`와 `user_session` 표는 이메일·비밀번호 해시 전체·세션 해시가 노출될 수 있어 원본 표를 직접 촬영하지 않는다. 카드 2·3은 비밀값을 가린 `T07-A02`~`A04` 실제 검증 화면을 제출한다.
+`app_user`와 `user_session` 원본 행은 이메일·비밀번호 해시 전체·세션 해시가 노출될 수 있어 직접 촬영하지 않는다. 대신 실제 DB의 읽기 전용 집계 결과인 `T07-A08`과 값 없는 스키마 관계도 `T07-A09`를 제출한다.
 
 ## 이전 촬영본
 
