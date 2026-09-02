@@ -83,9 +83,10 @@ plan-do-see-diary/
 |---|---|
 | 결과물 주소 | https://plan-do-see-diary.vercel.app |
 | 소스 저장소 | https://github.com/stulss/plan-do-see-diary |
-| 배포한 앱의 40자리 commit URL | https://github.com/stulss/plan-do-see-diary/commits/c1aaf195f674cff68da02a818737c1ffca650fe8/ |
+| 배포한 앱의 40자리 commit URL | https://github.com/stulss/plan-do-see-diary/commits/7413db2498a1e52eee0f69d8a6284f804e609271/ |
 | A10 전 전체 소스·문서 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/de6d96519a46cbec02226471060487d8574df2f8/ |
 | 날짜 이동·시간 자동 계산 완료 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/4462925ecf7d38b844c356c010e41b3f177b613e/ |
+| 사용성 개선·검증 전체 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/7d2a3eba0b6904dcaf76b6e8a82e81192289f936/ |
 | 인증 구현 설명서 | `docs/과제7/인증_구현_설명서.md` |
 | 짧은 확인 방법 4줄 | `docs/과제7/검증안내서.md` |
 | AI와 내 판단 3줄 | `docs/과제7/AI_3줄.md` |
