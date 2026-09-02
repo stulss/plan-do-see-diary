@@ -5,6 +5,7 @@ import { dateOnly } from "@/lib/format";
 import { CreatePlanForm, CreateTaskForm, PlanOption } from "@/app/create-forms";
 import { DraggableTask, TaskDropZone } from "@/app/planner-dnd";
 import { clockText } from "@/lib/domain/time";
+import { planColorClass } from "@/lib/plan-color";
 import {
   getPlannerWindow,
   koreanWeekday,
@@ -19,6 +20,7 @@ export const dynamic = "force-dynamic";
 
 interface PlannerTask {
   id: string | number;
+  plan_id: string | number | null;
   title: string;
   due_date: string | Date;
   priority: number;
@@ -45,11 +47,11 @@ function plannerHref(view: PlannerView, date: string) {
   return `/?view=${view}&date=${date}`;
 }
 
-function TaskPill({ task, compact = false }: { task: PlannerTask; compact?: boolean }) {
+function TaskPill({ task, planIds, compact = false }: { task: PlannerTask; planIds: (string | number)[]; compact?: boolean }) {
   const time = task.start_minute === null || task.end_minute === null
     ? `시간 미지정 · 예상 ${Number(task.estimate_minutes ?? 0)}분`
     : `${clockText(task.start_minute)}–${clockText(task.end_minute)} · ${Number(task.estimate_minutes)}분`;
-  return <DraggableTask taskId={String(task.id)}><Link className={`planner-task priority-${task.priority} ${task.completed_at ? "is-done" : ""}`} href={`/tasks/${task.id}`}>
+  return <DraggableTask taskId={String(task.id)}><Link className={`planner-task plan-colored ${planColorClass(task.plan_id, planIds)} ${task.completed_at ? "is-done" : ""}`} href={`/tasks/${task.id}`}>
     <span className="planner-task-title">{task.title}</span>
     <span className="planner-task-time">{time}</span>
     {!compact && <span className="planner-task-meta">{task.plan_title} · 실제 {Number(task.actual_minutes ?? 0)}분</span>}
@@ -70,7 +72,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
   const plannerWindow = getPlannerWindow(view, anchor);
 
   const tasks = await db()`
-    SELECT t.id, t.title, t.due_date, t.priority, t.estimate_minutes, t.start_minute, t.end_minute, COALESCE(p.title, '계획 없음') AS plan_title,
+    SELECT t.id, t.plan_id, t.title, t.due_date, t.priority, t.estimate_minutes, t.start_minute, t.end_minute, COALESCE(p.title, '계획 없음') AS plan_title,
       c.completed_at,
       COALESCE((SELECT SUM(r.actual_minutes) FROM run_log r WHERE r.task_id=t.id), 0)::int AS actual_minutes
     FROM task t
@@ -79,6 +81,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
     WHERE t.user_id=${user.id} AND t.deleted_at IS NULL AND t.due_date BETWEEN ${plannerWindow.visibleStart} AND ${plannerWindow.visibleEnd}
     ORDER BY t.due_date ASC, t.priority DESC, t.id ASC` as unknown as PlannerTask[];
   const allPlans = await db()`SELECT id, title, start_date, end_date FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC` as unknown as PlannerPlan[];
+  const planIds = allPlans.map((plan) => plan.id);
   const undatedRows = await db()`SELECT COUNT(*)::int AS count FROM task WHERE user_id=${user.id} AND deleted_at IS NULL AND due_date IS NULL`;
   const plans = allPlans.filter((plan) => dateOnly(plan.start_date) <= plannerWindow.focusEnd && dateOnly(plan.end_date) >= plannerWindow.focusStart);
 
@@ -125,7 +128,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
     </div>
     <p className="drag-help">할 일을 원하는 날짜로 끌어 놓으세요. 키보드·모바일에서는 할 일 상세에서 날짜를 수정할 수 있습니다.</p>
 
-    {plans.length > 0 && <div className="active-plans"><span>진행 계획</span>{plans.map((plan) => <Link key={String(plan.id)} href={`/plans/${plan.id}`}>{plan.title}</Link>)}</div>}
+    {plans.length > 0 && <div className="active-plans"><span>진행 계획</span>{plans.map((plan) => <Link className={planColorClass(plan.id, planIds)} key={String(plan.id)} href={`/plans/${plan.id}`}>{plan.title}</Link>)}</div>}
 
     <section className="planner-quick-add">
       <div className="quick-add-heading"><div><span className="section-kicker">QUICK ADD</span><h2>플래너에서 바로 추가</h2></div><span>{anchor.replaceAll("-", ".")} 날짜가 기본값으로 들어갑니다.</span></div>
@@ -136,7 +139,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
       <div className="day-date"><span>{anchor.slice(8)}</span><strong>{koreanWeekday(anchor, "long")}</strong><small>{anchor.slice(0, 7).replace("-", ".")}</small></div>
       <TaskDropZone date={anchor} className="day-agenda">
         <div className="agenda-heading"><h2>오늘의 할 일</h2><span className="badge">{focusTasks.length}건</span></div>
-        {focusTasks.length ? focusTasks.map((task) => <TaskPill key={String(task.id)} task={task} />) : <div className="planner-empty"><strong>예정된 할 일이 없습니다.</strong><span>여유 시간을 다음 계획에 사용해 보세요.</span></div>}
+        {focusTasks.length ? focusTasks.map((task) => <TaskPill key={String(task.id)} task={task} planIds={planIds} />) : <div className="planner-empty"><strong>예정된 할 일이 없습니다.</strong><span>여유 시간을 다음 계획에 사용해 보세요.</span></div>}
       </TaskDropZone>
     </section>}
 
@@ -145,7 +148,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
         const dayTasks = tasksByDate.get(date) ?? [];
         return <TaskDropZone date={date} className={`week-day ${date === today ? "is-today" : ""}`} key={date}>
           <Link className="week-day-heading" href={plannerHref("day", date)}><span>{koreanWeekday(date)}</span><strong>{Number(date.slice(8))}</strong></Link>
-          <div className="week-day-tasks">{dayTasks.length ? dayTasks.map((task) => <TaskPill key={String(task.id)} task={task} compact />) : <span className="empty-day">비어 있음</span>}</div>
+          <div className="week-day-tasks">{dayTasks.length ? dayTasks.map((task) => <TaskPill key={String(task.id)} task={task} planIds={planIds} compact />) : <span className="empty-day">비어 있음</span>}</div>
         </TaskDropZone>;
       })}
     </section>}
@@ -157,7 +160,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
         const outside = date.slice(0, 7) !== anchor.slice(0, 7);
         return <TaskDropZone date={date} className={`month-day ${outside ? "is-outside" : ""} ${date === today ? "is-today" : ""}`} key={date}>
           <Link className="month-date" href={plannerHref("day", date)}>{Number(date.slice(8))}</Link>
-          <div>{dayTasks.slice(0, 3).map((task) => <TaskPill key={String(task.id)} task={task} compact />)}{dayTasks.length > 3 && <Link className="more-tasks" href={plannerHref("day", date)}>+{dayTasks.length - 3}개 더보기</Link>}</div>
+          <div>{dayTasks.slice(0, 3).map((task) => <TaskPill key={String(task.id)} task={task} planIds={planIds} compact />)}{dayTasks.length > 3 && <Link className="more-tasks" href={plannerHref("day", date)}>+{dayTasks.length - 3}개 더보기</Link>}</div>
         </TaskDropZone>;
       })}</div>
     </section>}

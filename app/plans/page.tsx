@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requirePageUser } from "@/lib/session";
 import { dateOnly, priorityLabel } from "@/lib/format";
 import { CreatePlanForm } from "@/app/create-forms";
+import { planColorClass } from "@/lib/plan-color";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
   const user = await requirePageUser();
   const query = await searchParams;
   const plans = await db()`SELECT * FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC`;
+  const planIds = plans.map((plan) => String(plan.id));
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const estimateTotal = plans.reduce((sum, plan) => sum + Number(plan.estimate_minutes ?? 0), 0);
   const activeCount = plans.filter((plan) => dateOnly(plan.start_date as Date) <= today && dateOnly(plan.end_date as Date) >= today).length;
@@ -29,7 +31,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
         const end = dateOnly(plan.end_date as Date);
         // 서울 날짜 기준으로 계획 상태를 한 번 계산해 카드와 플래너가 같은 의미를 갖게 한다.
         const status = end < today ? "마침" : start > today ? "예정" : "진행 중";
-        return <Link className={`plan-card priority-${Number(plan.priority)}`} key={String(plan.id)} href={`/plans/${plan.id}`}>
+        return <Link className={`plan-card plan-colored ${planColorClass(String(plan.id), planIds)}`} key={String(plan.id)} href={`/plans/${plan.id}`}>
           <div className="plan-card-top"><span className={`status-dot ${status === "진행 중" ? "active" : ""}`}>{status}</span><span className="priority-label">우선순위 {priorityLabel(Number(plan.priority))}</span></div>
           <h3>{String(plan.title)}</h3>
           <p>{String(plan.success_criteria)}</p>

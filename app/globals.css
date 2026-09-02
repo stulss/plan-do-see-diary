@@ -120,7 +120,16 @@ input[type="date"] { cursor: pointer; }
 .date-navigation a:not(.today-link) { width: 40px; padding: 0; font-size: 1.5rem; }
 .active-plans { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; overflow-x: auto; color: var(--muted); font-size: .84rem; white-space: nowrap; }
 .active-plans > span { font-weight: 750; }
-.active-plans a { padding: .25rem .6rem; border-radius: 999px; background: #fff1e3; color: #8b4c16; text-decoration: none; }
+.active-plans a { padding: .25rem .6rem; border: 1px solid var(--plan-color); border-radius: 999px; background: var(--plan-tint); color: var(--plan-ink); font-weight: 750; text-decoration: none; }
+.plan-color-1 { --plan-color: #2d7d6b; --plan-tint: #e4f2ed; --plan-ink: #225e51; }
+.plan-color-2 { --plan-color: #bd642a; --plan-tint: #fff0e4; --plan-ink: #884719; }
+.plan-color-3 { --plan-color: #3978a8; --plan-tint: #e8f2f9; --plan-ink: #28587e; }
+.plan-color-4 { --plan-color: #8064ad; --plan-tint: #f0ebf8; --plan-ink: #5f478b; }
+.plan-color-5 { --plan-color: #b75a75; --plan-tint: #f9eaf0; --plan-ink: #873f57; }
+.plan-color-6 { --plan-color: #788a36; --plan-tint: #f1f4e4; --plan-ink: #596724; }
+.plan-color-7 { --plan-color: #2d8890; --plan-tint: #e4f4f5; --plan-ink: #20646a; }
+.plan-color-8 { --plan-color: #8b6845; --plan-tint: #f4eee8; --plan-ink: #684c32; }
+.plan-color-none { --plan-color: #8b9692; --plan-tint: #f0f2f1; --plan-ink: #59625f; }
 .planner-quick-add { margin-bottom: 1rem; }
 .quick-add-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: .55rem; }
 .quick-add-heading h2 { margin: .12rem 0 0; font-size: 1.05rem; }
@@ -141,6 +150,7 @@ input[type="date"] { cursor: pointer; }
 .planner-task.priority-3 { border-left-color: #cf5d4b; }
 .planner-task.priority-2 { border-left-color: #c38a35; }
 .planner-task.priority-1 { border-left-color: #5b8ca8; }
+.planner-task.plan-colored { border-left-color: var(--plan-color); background: linear-gradient(90deg, var(--plan-tint), white 42%); }
 .planner-task.is-done { opacity: .56; background: #f7f9f8; }
 .planner-task.is-done .planner-task-title { text-decoration: line-through; }
 .planner-task-title { display: block; overflow: hidden; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
@@ -216,6 +226,7 @@ input[type="date"] { cursor: pointer; }
 .plan-card.priority-3 { border-top-color: #cf5d4b; }
 .plan-card.priority-2 { border-top-color: #c38a35; }
 .plan-card.priority-1 { border-top-color: #5b8ca8; }
+.plan-card.plan-colored { border-top-color: var(--plan-color); background: linear-gradient(180deg, var(--plan-tint), var(--surface) 34%); }
 .plan-card-top, .plan-card-footer { display: flex; justify-content: space-between; align-items: center; gap: .75rem; }
 .status-dot, .priority-label { color: var(--muted); font-size: .78rem; font-weight: 750; }
 .status-dot::before { content: ""; width: 7px; height: 7px; margin-right: .38rem; border-radius: 50%; background: #9ba5a1; display: inline-block; }
@@ -239,12 +250,14 @@ input[type="date"] { cursor: pointer; }
 .task-row.priority-3::before { background: #cf5d4b; }
 .task-row.priority-2::before { background: #c38a35; }
 .task-row.priority-1::before { background: #5b8ca8; }
+.task-row.plan-colored::before { background: var(--plan-color); }
 .task-row:last-child { border-bottom: 0; }
 .task-row.is-done { background: #f7f9f8; }
 .task-row.is-done .task-row-main a { color: var(--muted); text-decoration: line-through; }
 .task-row-main, .task-fact, .task-state { min-width: 0; display: flex; flex-direction: column; }
 .task-row-main a { overflow: hidden; color: #20302b; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .task-row-main span, .task-fact small, .task-state small { overflow: hidden; color: var(--muted); font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+.task-row-main .task-plan-label { align-self: flex-start; margin-top: .22rem; padding: .12rem .42rem; border-radius: 999px; background: var(--plan-tint); color: var(--plan-ink); font-weight: 750; }
 .task-fact span { font-size: .88rem; font-variant-numeric: tabular-nums; }
 .task-fact em { color: #517266; font-size: .74rem; font-style: normal; font-weight: 750; }
 .task-fact em.over { color: #a54638; }

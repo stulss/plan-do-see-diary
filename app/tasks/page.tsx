@@ -5,6 +5,7 @@ import { buildTaskWhere, metricLabel, Metric, TaskFilter } from "@/lib/domain/qu
 import { dateOnly, priorityLabel } from "@/lib/format";
 import { CreateTaskForm, PlanOption } from "@/app/create-forms";
 import { clockText } from "@/lib/domain/time";
+import { planColorClass } from "@/lib/plan-color";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
     db()`SELECT id, title FROM plan WHERE user_id=${user.id} ORDER BY start_date DESC, id DESC`
   ]);
   const estimateTotal = tasks.reduce((sum, task) => sum + Number(task.estimate_minutes ?? 0), 0);
+  const planIds = plans.map((plan) => String(plan.id));
   const actualTotal = tasks.reduce((sum, task) => sum + Number(task.actual_minutes ?? 0), 0);
   const doneCount = tasks.filter((task) => task.completed_at).length;
   // 시간 카드에서 넘어온 경우에는 건수 대신 목록의 시간 합계를 다시 보여준다.
@@ -52,8 +54,8 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
         const plannedTime = task.start_minute == null || task.end_minute == null
           ? "시간 미지정"
           : `${clockText(Number(task.start_minute))}–${clockText(Number(task.end_minute))}`;
-        return <article className={`task-row priority-${Number(task.priority)} ${task.completed_at ? "is-done" : ""}`} key={String(task.id)}>
-          <div className="task-row-main"><Link href={`/tasks/${task.id}`}>{String(task.title)}</Link><span>{String(task.plan_title)}</span></div>
+        return <article className={`task-row plan-colored ${planColorClass(task.plan_id === null ? null : String(task.plan_id), planIds)} ${task.completed_at ? "is-done" : ""}`} key={String(task.id)}>
+          <div className="task-row-main"><Link href={`/tasks/${task.id}`}>{String(task.title)}</Link><span className="task-plan-label">{String(task.plan_title)}</span></div>
           <div className="task-fact"><small>기간</small><span>{dateOnly(task.start_date as Date).replaceAll("-", ".")} → {dateOnly(task.due_date as Date).replaceAll("-", ".")}</span></div>
           <div className="task-fact"><small>시간</small><span>{plannedTime}</span><span>{estimate}분 → {actual}분</span><em className={diff > 0 ? "over" : ""}>{diff > 0 ? "+" : ""}{diff}분</em></div>
           <div className="task-state"><span className={`badge ${task.completed_at ? "" : "pending"}`}>{task.completed_at ? "완료" : "진행 중"}</span><small>우선순위 {priorityLabel(Number(task.priority))}</small></div>
