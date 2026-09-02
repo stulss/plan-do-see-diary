@@ -95,7 +95,7 @@ plan-do-see-diary/
 
 Next.js(App Router) 단일 프로젝트 · 관리형 Postgres · Vercel 배포.
 DB 접속 문자열은 서버 라우트에서만 사용하며 `NEXT_PUBLIC_*`으로 노출하지 않는다.
-시간 단위는 전 구간 '분', 할 일 시작일·마감일은 서울 날짜(`date`), 실행 시각은 UTC 저장(`timestamptz`) 후 서울 표시한다. 날짜는 기간을 뜻하고, 할 일의 시작·마감 시각과 실행 기록의 시작·종료 시각을 입력하면 예상·실제 분은 자동 계산된다.
+시간 단위는 전 구간 '분', 할 일 시작일·마감일은 서울 날짜(`date`), 실행 시각은 `timestamptz`로 안전하게 보존하고 DB·앱 연결에서 `Asia/Seoul(+09:00)`로 표시한다. 날짜는 기간을 뜻하고, 할 일의 시작·마감 시각과 실행 기록의 시작·종료 시각을 입력하면 예상·실제 분은 자동 계산된다.
 
 ## 규칙
 
@@ -107,5 +107,7 @@ DB 접속 문자열은 서버 라우트에서만 사용하며 `NEXT_PUBLIC_*`으
 1. 관리형 PostgreSQL을 만들고 `schema.sql`을 한 번 적용한다.
 2. 직접 연결할 때는 `.env.local`에 서버 전용 `DATABASE_URL`을 넣는다. Vercel Supabase 연동은 `vercel env pull .env.local`로 `POSTGRES_URL`을 내려받는다.
 3. `npm install` 후 `npm run dev`를 실행한다.
+
+DB를 처음 연결하거나 새 DB로 바꿨다면 `npm run db:timezone`을 한 번 실행한다. 기존 시각 값은 바꾸지 않고 데이터베이스의 새 연결 기본 시간대를 `Asia/Seoul`로 설정·검증한다.
 
 검증 명령은 `npm test`, `npm run typecheck`, `npm run build`, `npm audit --omit=dev`이다.

@@ -11,7 +11,12 @@ export function db(): Sql {
   // 이 파일은 서버 코드에서만 import하며 접속 문자열을 브라우저로 전달하지 않는다.
   // Supabase/Vercel의 트랜잭션 풀러는 연결마다 prepared statement를 보존하지 않는다.
   // prepare를 끄면 다른 물리 연결로 바뀌어도 같은 SQL을 안전하게 실행할 수 있다.
-  client ??= postgres(url, { max: 5, prepare: false });
+  client ??= postgres(url, {
+    max: 5,
+    prepare: false,
+    // timestamptz는 실제 순간을 UTC 기준으로 보존하고, DB가 반환하는 표기만 서울(+09:00)로 통일한다.
+    connection: { TimeZone: "Asia/Seoul" }
+  });
   return client;
 }
 
