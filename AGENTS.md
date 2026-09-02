@@ -40,3 +40,28 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+---
+
+## 과제 7 (인증) 작업 시
+
+이 저장소는 과제 6과 과제 7을 함께 담는다. **과제 6 문서·보고서·증거는 지우지 않는다.**
+
+| 종류 | 과제 6 | 과제 7 |
+|---|---|---|
+| 진행 기록 | `작업내역_체크리스트.md` | **`과제7_작업내역_체크리스트.md`** |
+| 문서 | `docs/*.md` | **`docs/과제7/*.md`** |
+| 증거 | `docs/evidence/` | **`docs/과제7/evidence/`** |
+
+과제 7 작업은 `과제7_작업내역_체크리스트.md` 를 먼저 읽고, 설계는 `docs/과제7/01_기획.md` 를 따른다.
+
+### 과제 7 불변 규칙
+
+1. 로그인 방법은 **아이디 + 비밀번호 하나**다.
+2. 사용자 ID 는 **세션에서만** 얻는다. URL·헤더·요청 본문에서 읽지 않는다.
+3. 목록·검색·거르기·집계는 모두 `lib/domain/query.ts` 의 `buildTaskWhere` 를 지나며, 첫 조건은 `user_id` 다.
+4. 한 건 조회·수정·삭제는 `WHERE id AND user_id` 로 하고 0행이면 404 다. 소유자 조건을 UPDATE/DELETE 의 WHERE 에 함께 두어 거절이 자료를 바꾸지 못하게 한다.
+5. 비밀번호는 `bcryptjs`(작업 계수 12)에 맡긴다. 규칙 검사는 `lib/domain/rules.ts` 한 곳에서만 하고 서버에서 반드시 재검사한다.
+6. 세션은 불투명 난수이고 DB 에는 `sha256` 만 저장한다. 로그아웃은 DB 행 삭제다.
+7. 응답은 `lib/dto/` 를 거친다. DB 행을 그대로 반환하지 않는다.
+8. 소유자 컬럼 마이그레이션은 순서를 지킨다: NULL 허용 → 백필 → 임시 DEFAULT → NOT NULL. 배포 후 DROP DEFAULT.

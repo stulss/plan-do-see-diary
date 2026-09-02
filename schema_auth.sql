@@ -2,7 +2,7 @@
 -- 과제 6 DB 를 그대로 쓰므로 순서를 지켜야 과제 6 배포가 깨지지 않는다.
 
 -- 계정. 로그인은 login_id 로, 화면 표시는 nickname 으로 한다.
--- 이메일은 나중에 비밀번호 찾기와 소셜 계정 연결에 쓰려고 함께 받는다.
+-- 이메일은 나중에 비밀번호 찾기에 쓰려고 함께 받는다.
 CREATE TABLE app_user (
   id            bigserial PRIMARY KEY,
   login_id      text NOT NULL CHECK (length(btrim(login_id)) > 0),
