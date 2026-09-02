@@ -70,12 +70,13 @@ plan-do-see-diary/
 
 - 로그인: 아이디 + 비밀번호
 - 공개 시작 화면: 로그인·회원가입을 버튼으로 선택하고, 로그인 화면에서 아이디·비밀번호 복구 가능
-- 입력 편의: 비밀번호 보기, 전체 날짜 입력칸 달력 열기, 버튼 즉시 처리 상태 표시
+- 입력 편의: 비밀번호 보기, 보이는 날짜 입력 박스에서 달력 열기, 버튼 즉시 처리 상태 표시
 - 사용자 식별: URL·헤더·본문이 아닌 서버 세션만 사용
 - 자료 차단: 목록·검색·집계와 한 건 조회·수정·삭제 모두 `user_id` 조건 강제
 - 플래너 조작: 일간·주간·월간에서 할 일을 다른 날짜로 끌어 놓아 `due_date` 변경
 - 시간 기록: 할 일과 실행 기록 모두 시작·종료 시각으로 분 단위를 서버에서 자동 계산
 - 할 일: 계획 연결은 선택 사항이며 시작일·마감일과 시작·마감 시각을 각각 입력
+- 계획 구분: 진행 계획·계획 카드·연결 할 일이 같은 고정 색을 사용하고 계획 없음은 중립색으로 표시
 - 과제 7 문서·증거: `docs/과제7/` 아래에만 추가
 - 로컬 검증 증거: `docs/과제7/evidence/auth-isolation-results.json`
 
@@ -87,6 +88,7 @@ plan-do-see-diary/
 | A10 전 전체 소스·문서 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/de6d96519a46cbec02226471060487d8574df2f8/ |
 | 날짜 이동·시간 자동 계산 완료 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/4462925ecf7d38b844c356c010e41b3f177b613e/ |
 | 사용성 개선·검증 전체 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/7d2a3eba0b6904dcaf76b6e8a82e81192289f936/ |
+| 최근 사용성 수정 소스 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/108b4fe964d6a3f1f2009fe141d16ab44ab73acd/ |
 | 인증 구현 설명서 | `docs/과제7/인증_구현_설명서.md` |
 | 짧은 확인 방법 4줄 | `docs/과제7/검증안내서.md` |
 | AI와 내 판단 3줄 | `docs/과제7/AI_3줄.md` |
@@ -110,4 +112,4 @@ DB 접속 문자열은 서버 라우트에서만 사용하며 `NEXT_PUBLIC_*`으
 
 DB를 처음 연결하거나 새 DB로 바꿨다면 `npm run db:timezone`을 한 번 실행한다. 기존 시각 값은 바꾸지 않고 데이터베이스의 새 연결 기본 시간대를 `Asia/Seoul`로 설정·검증한다.
 
-검증 명령은 `npm test`, `npm run typecheck`, `npm run build`, `npm audit --omit=dev`이다.
+검증 명령은 `npm test`(27건), `npm run typecheck`, `npm run build`, `npm audit --omit=dev`이다.
