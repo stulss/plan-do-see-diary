@@ -1,0 +1,66 @@
+{
+  "verified_at": "2026-09-02T04:57:05.288Z",
+  "base_url": "http://localhost:3000",
+  "credentials_recorded": false,
+  "session_values_recorded": false,
+  "checks": {
+    "unauthenticated_api": {
+      "method": "GET",
+      "path": "/api/tasks",
+      "status": 401
+    },
+    "signup": {
+      "accounts": 2,
+      "status": 201
+    },
+    "duplicate_signup": {
+      "method": "POST",
+      "path": "/api/auth/signup",
+      "status": 409
+    },
+    "bcrypt": {
+      "cost": 12,
+      "hashes_have_bcrypt_shape": true,
+      "same_password_hashes_differ": true
+    },
+    "login_failure_message_same": true,
+    "isolation": [
+      {
+        "direction": "owner-test → other-test",
+        "read": 404,
+        "update": 404,
+        "delete": 404,
+        "target_unchanged": true,
+        "target_rows_before": 1,
+        "target_rows_after": 1,
+        "leaked_rows": 0,
+        "supplied_user_fields_ignored": true
+      },
+      {
+        "direction": "other-test → owner-test",
+        "read": 404,
+        "update": 404,
+        "delete": 404,
+        "target_unchanged": true,
+        "target_rows_before": 1,
+        "target_rows_after": 1,
+        "leaked_rows": 0,
+        "supplied_user_fields_ignored": true
+      }
+    ],
+    "session_revocation": {
+      "logout": {
+        "method": "GET",
+        "path": "/api/tasks",
+        "before": 200,
+        "old_session_after": 401
+      },
+      "password_change": {
+        "status": 200,
+        "old_session_after": 401,
+        "old_password_login": 401,
+        "new_password_login": 200
+      }
+    }
+  }
+}

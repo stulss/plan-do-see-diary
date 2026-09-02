@@ -87,7 +87,8 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
   const periodLabel = plannerPeriodLabel(view, anchor, plannerWindow);
 
   return <>
-    <p className="notice">지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요.</p>
+    {/* 과제 7에서는 서버 세션의 사용자 ID로 모든 자료를 제한한다. */}
+    <p className="notice">로그인한 계정의 자료만 보입니다. 공용 PC에서는 사용 후 로그아웃하세요.</p>
 
     <section className="planner-heading">
       <div><span className="eyebrow">PLAN · DO · SEE</span><h1>{periodLabel}</h1><p className="page-lead">기간을 바꿔 계획과 실제 기록을 한눈에 살펴보세요.</p></div>
