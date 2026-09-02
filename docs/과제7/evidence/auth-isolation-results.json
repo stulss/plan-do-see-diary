@@ -1,6 +1,6 @@
 {
-  "verified_at": "2026-09-02T05:44:29.598Z",
-  "base_url": "https://plan-do-see-diary.vercel.app",
+  "verified_at": "2026-09-02T06:27:09.533Z",
+  "base_url": "http://localhost:3000",
   "credentials_recorded": false,
   "session_values_recorded": false,
   "checks": {
@@ -30,6 +30,7 @@
         "read": 404,
         "update": 404,
         "delete": 404,
+        "date_move": 404,
         "target_unchanged": true,
         "target_rows_before": 1,
         "target_rows_after": 1,
@@ -41,6 +42,7 @@
         "read": 404,
         "update": 404,
         "delete": 404,
+        "date_move": 404,
         "target_unchanged": true,
         "target_rows_before": 1,
         "target_rows_after": 1,
@@ -48,6 +50,12 @@
         "supplied_user_fields_ignored": true
       }
     ],
+    "planner_date_move": {
+      "move_status": 200,
+      "moved_to": "2026-09-03",
+      "persisted": true,
+      "restored": true
+    },
     "session_revocation": {
       "logout": {
         "method": "GET",

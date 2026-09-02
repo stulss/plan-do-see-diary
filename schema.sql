@@ -62,12 +62,19 @@ CREATE TABLE task (
   title text NOT NULL CHECK (btrim(title) <> ''),
   note text,
   due_date date,
+  start_minute integer CONSTRAINT task_start_minute_range CHECK (start_minute BETWEEN 0 AND 1439),
+  end_minute integer CONSTRAINT task_end_minute_range CHECK (end_minute BETWEEN 1 AND 1439),
   priority smallint NOT NULL CHECK (priority BETWEEN 1 AND 3),
   tags text[] NOT NULL DEFAULT '{}',
   estimate_minutes integer CHECK (estimate_minutes >= 0),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  deleted_at timestamptz
+  deleted_at timestamptz,
+  CONSTRAINT task_schedule_pair CHECK (
+    (start_minute IS NULL AND end_minute IS NULL)
+    OR (start_minute IS NOT NULL AND end_minute IS NOT NULL
+      AND end_minute > start_minute AND estimate_minutes = end_minute - start_minute)
+  )
 );
 
 -- task_id 자체가 기본키라서 완료 요청을 연속으로 보내도 한 행만 존재할 수 있다.

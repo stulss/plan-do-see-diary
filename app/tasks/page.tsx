@@ -4,6 +4,7 @@ import { requirePageUser } from "@/lib/session";
 import { buildTaskWhere, metricLabel, Metric, TaskFilter } from "@/lib/domain/query";
 import { dateOnly, priorityLabel } from "@/lib/format";
 import { CreateTaskForm, PlanOption } from "@/app/create-forms";
+import { clockText } from "@/lib/domain/time";
 
 export const dynamic = "force-dynamic";
 
@@ -48,10 +49,13 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
         const estimate = Number(task.estimate_minutes ?? 0);
         const actual = Number(task.actual_minutes ?? 0);
         const diff = actual - estimate;
+        const plannedTime = task.start_minute == null || task.end_minute == null
+          ? "시간 미지정"
+          : `${clockText(Number(task.start_minute))}–${clockText(Number(task.end_minute))}`;
         return <article className={`task-row priority-${Number(task.priority)} ${task.completed_at ? "is-done" : ""}`} key={String(task.id)}>
           <div className="task-row-main"><Link href={`/tasks/${task.id}`}>{String(task.title)}</Link><span>{String(task.plan_title)}</span></div>
           <div className="task-fact"><small>마감</small><span>{task.due_date ? dateOnly(task.due_date as Date).replaceAll("-", ".") : "없음"}</span></div>
-          <div className="task-fact"><small>시간</small><span>{estimate}분 → {actual}분</span><em className={diff > 0 ? "over" : ""}>{diff > 0 ? "+" : ""}{diff}분</em></div>
+          <div className="task-fact"><small>시간</small><span>{plannedTime}</span><span>{estimate}분 → {actual}분</span><em className={diff > 0 ? "over" : ""}>{diff > 0 ? "+" : ""}{diff}분</em></div>
           <div className="task-state"><span className={`badge ${task.completed_at ? "" : "pending"}`}>{task.completed_at ? "완료" : "진행 중"}</span><small>우선순위 {priorityLabel(Number(task.priority))}</small></div>
           <form className="compact-action" action={`/api/tasks/${task.id}/completion${task.completed_at ? "?_method=DELETE" : ""}`} method="post"><button>{task.completed_at ? "되돌리기" : "완료"}</button></form>
         </article>;

@@ -122,6 +122,14 @@ a { color: #0b654e; text-underline-offset: 3px; }
 .planner-task.is-done .planner-task-title { text-decoration: line-through; }
 .planner-task-title { display: block; overflow: hidden; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
 .planner-task-meta { display: block; margin-top: .18rem; color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.planner-task-time { display: block; margin-top: .18rem; color: #315d50; font-size: .78rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.planner-task-drag { cursor: grab; }
+.planner-task-drag:active { cursor: grabbing; }
+.planner-task-drag.is-dragging { opacity: .42; }
+.planner-drop-zone { transition: background-color 120ms ease-out, outline-color 120ms ease-out; }
+.planner-drop-zone.is-drop-target { outline: 3px solid #4d8e7b; outline-offset: -3px; background: #e7f5f0; }
+.drag-help { margin: .45rem 0 1rem; color: var(--muted); font-size: .88rem; }
+.auto-duration { align-self: end; min-height: 45px; padding: .7rem .8rem; border-radius: 8px; background: #edf5f2; color: #28584a; font-weight: 750; display: flex; align-items: center; }
 .planner-empty { min-height: 270px; border: 1px dashed #bdc9c4; border-radius: 12px; color: var(--muted); display: grid; place-content: center; text-align: center; }
 .planner-empty strong { color: #3e4e48; }
 .planner-empty span { font-size: .9rem; }

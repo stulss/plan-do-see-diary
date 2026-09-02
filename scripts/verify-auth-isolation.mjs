@@ -79,7 +79,8 @@ async function createFixture(account) {
       due_date: "2026-09-02",
       priority: 2,
       tags: "auth-verify",
-      estimate_minutes: 1,
+      start_time: "09:00",
+      end_time: "09:01",
     },
   });
   expectStatus(`${account.alias} 할 일 생성`, task, 201);
@@ -103,15 +104,20 @@ async function crossChecks(actor, target, fixture) {
       due_date: "2026-09-02",
       priority: 3,
       tags: "blocked",
-      estimate_minutes: 999,
+      start_time: "09:00",
+      end_time: "10:00",
       user_id: actor.id,
       owner: actor.id,
     },
   });
   const remove = await request(`/api/tasks/${fixture.taskId}`, { method: "DELETE", cookie: actor.cookie });
+  const moveDate = await request(`/api/tasks/${fixture.taskId}/date`, {
+    method: "PATCH", cookie: actor.cookie, body: { due_date: "2026-09-03" },
+  });
   for (const [label, result] of [["읽기", read], ["수정", update], ["삭제", remove]]) {
     expectStatus(`${actor.alias}→${target.alias} ${label}`, result, 404);
   }
+  expectStatus(`${actor.alias}→${target.alias} 날짜 이동`, moveDate, 404);
 
   const after = await sql`
     SELECT title, deleted_at FROM task WHERE id = ${fixture.taskId} AND user_id = ${target.id}
@@ -133,12 +139,27 @@ async function crossChecks(actor, target, fixture) {
     read: read.response.status,
     update: update.response.status,
     delete: remove.response.status,
+    date_move: moveDate.response.status,
     target_unchanged: unchanged,
     target_rows_before: beforeCount.count,
     target_rows_after: afterCount.count,
     leaked_rows: 0,
     supplied_user_fields_ignored: true,
   };
+}
+
+async function ownDateMove(account, fixture) {
+  const moved = await request(`/api/tasks/${fixture.taskId}/date`, {
+    method: "PATCH", cookie: account.cookie, body: { due_date: "2026-09-03" },
+  });
+  expectStatus("내 할 일 날짜 이동", moved, 200);
+  const [afterMove] = await sql`SELECT due_date::text AS due_date FROM task WHERE id=${fixture.taskId} AND user_id=${account.id}`;
+  if (afterMove?.due_date !== "2026-09-03") throw new Error("드롭 날짜가 DB에 반영되지 않았습니다.");
+  const restored = await request(`/api/tasks/${fixture.taskId}/date`, {
+    method: "PATCH", cookie: account.cookie, body: { due_date: "2026-09-02" },
+  });
+  expectStatus("내 할 일 날짜 원복", restored, 200);
+  return { move_status: 200, moved_to: "2026-09-03", persisted: true, restored: true };
 }
 
 try {
@@ -162,6 +183,7 @@ try {
 
   const firstFixture = await createFixture(first);
   const secondFixture = await createFixture(second);
+  const dateMove = await ownDateMove(first, firstFixture);
   const directions = [
     await crossChecks(first, second, secondFixture),
     await crossChecks(second, first, firstFixture),
@@ -246,6 +268,7 @@ try {
       bcrypt: { cost: 12, hashes_have_bcrypt_shape: hashesSafe, same_password_hashes_differ: hashesDiffer },
       login_failure_message_same: sameLoginFailure,
       isolation: directions,
+      planner_date_move: dateMove,
       session_revocation: {
         logout: { method: "GET", path: "/api/tasks", before: 200, old_session_after: 401 },
         password_change: { status: 200, old_session_after: 401, old_password_login: 401, new_password_login: 200 },

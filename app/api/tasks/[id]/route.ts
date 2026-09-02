@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, databaseError } from "@/lib/db";
 import { idParam, integer, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
+import { calendarDate, taskSchedule } from "@/lib/domain/time";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -22,10 +23,12 @@ export async function GET(_: NextRequest, { params }: Context) {
 async function update(request: NextRequest, id: string, userId: string) {
   const body = await requestValues(request);
   const tags = value(body, "tags", false).split(",").map((tag) => tag.trim()).filter(Boolean);
+  const dueDate = calendarDate(value(body, "due_date"));
+  const schedule = taskSchedule(value(body, "start_time"), value(body, "end_time"));
   // 소유자 조건이 UPDATE 의 WHERE 에 있으므로, 남의 할 일이면 아무것도 바뀌지 않는다.
   const rows = await db()`UPDATE task SET title=${value(body, "title")}, note=${value(body, "note", false) || null},
-    due_date=${value(body, "due_date", false) || null}, priority=${integer(body, "priority")}, tags=${tags},
-    estimate_minutes=${integer(body, "estimate_minutes", false)}, updated_at=now()
+    due_date=${dueDate}, start_minute=${schedule.startMinute}, end_minute=${schedule.endMinute},
+    priority=${integer(body, "priority")}, tags=${tags}, estimate_minutes=${schedule.minutes}, updated_at=now()
     WHERE id=${idParam(id)} AND user_id=${userId} AND deleted_at IS NULL RETURNING *`;
   if (!rows[0]) return notFound("할 일을 찾지 못했습니다.");
   return result(request, rows[0], `/tasks/${id}`, 200);

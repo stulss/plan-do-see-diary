@@ -3,6 +3,7 @@ import { db, databaseError } from "@/lib/db";
 import { integer, requestValues, result, value } from "@/lib/http";
 import { buildTaskWhere, Metric, TaskFilter } from "@/lib/domain/query";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
+import { calendarDate, taskSchedule } from "@/lib/domain/time";
 
 function filters(params: URLSearchParams): TaskFilter {
   const take = (name: string) => params.get(name) || undefined;
@@ -34,12 +35,14 @@ export async function POST(request: NextRequest) {
     if (!user) return unauthorized();
     const body = await requestValues(request);
     const tags = value(body, "tags", false).split(",").map((tag) => tag.trim()).filter(Boolean);
+    const dueDate = calendarDate(value(body, "due_date"));
+    const schedule = taskSchedule(value(body, "start_time"), value(body, "end_time"));
     // 계획의 주인이 나일 때만 행이 만들어진다. 남의 계획에 할 일을 붙일 수 없다.
     const rows = await db()`
-      INSERT INTO task (plan_id, title, note, due_date, priority, tags, estimate_minutes, user_id)
+      INSERT INTO task (plan_id, title, note, due_date, start_minute, end_minute, priority, tags, estimate_minutes, user_id)
       SELECT p.id, ${value(body, "title")}::text, ${value(body, "note", false) || null}::text,
-        ${value(body, "due_date", false) || null}::date, ${integer(body, "priority")}::smallint,
-        ${tags}::text[], ${integer(body, "estimate_minutes", false)}::int, p.user_id
+        ${dueDate}::date, ${schedule.startMinute}::int, ${schedule.endMinute}::int, ${integer(body, "priority")}::smallint,
+        ${tags}::text[], ${schedule.minutes}::int, p.user_id
       FROM plan p WHERE p.id = ${integer(body, "plan_id")} AND p.user_id = ${user.id}
       RETURNING *`;
     if (!rows[0]) return notFound("계획을 찾지 못했습니다.");
