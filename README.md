@@ -1,70 +1,104 @@
-# 플랜두씨 다이어리 (과제 6)
+# 잠긴 플랜두씨 다이어리 (과제 7)
 
-계획(Plan) → 실제로 한 일(Do) → 돌아보기(See)를 하나의 서버 데이터베이스로 잇는 다이어리.
-로그인은 없으며, 돌아보기의 집계 숫자를 눌러 그 숫자가 나온 근거 기록까지 되짚어 갈 수 있다.
-
-> 지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요.
-
-## 상태
-
-P0~P7 구현·검증과 Vercel Supabase 연결, 스키마 적용, 실제 자료 입력, GitHub 공개 소스와 Vercel 배포를 완료했다.
-홈은 같은 실제 자료를 일간·주간·월간으로 보고 새 계획·할 일을 바로 추가하는 플래너이며, 계획·할 일·돌아보기·상세 화면도 같은 디자인 체계를 사용한다.
-진행 상황은 `작업내역_체크리스트.md` 한 파일만 보면 된다.
-
-## 제출물
+과제 6에서 만든 **플랜두씨 다이어리**에 가입·로그인을 붙여 **내 자료를 나만 볼 수 있게** 만든 것.
+첫 화면은 로그인 화면이고, 내 기록은 로그인 뒤에만 보인다.
 
 | 항목 | 값 |
 |---|---|
-| 결과물 주소 | https://plan-do-see-diary.vercel.app |
-| 소스 저장소 | https://github.com/stulss/plan-do-see-diary |
-| 40자리 commit 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/eb390d565a015e390362b07d2e8dd51b390e8eb2/ |
-| 짧은 확인 방법 4줄 | `docs/검증안내서.md` |
-| AI와 내 판단 3줄 | `docs/AI_3줄.md` |
-| 과제 제출 보고서 | `reports/플랜두씨_다이어리_과제6_제출보고서.pptx`(25장) · `.pdf`(25쪽) |
+| 결과물 주소 | `(배포 후 기입)` |
+| 소스 | https://github.com/stulss/plan-do-see-diary 의 **`plan-do-see-diary_to7`** 브랜치 |
+| 이어받은 과제 6 결과물 | https://plan-do-see-diary.vercel.app |
+| 이어받은 과제 6 고정 commit | `356a46034e94084caec3e17eaaf2ab8d98cef7ce` |
+
+## 무엇으로 잠갔나
+
+| 구분 | 선택 |
+|---|---|
+| 인증 방식 | 직접 구현(자체 DB 세션) + 검증된 라이브러리 조합 |
+| 로그인 방법 | **아이디+비밀번호 · 구글 · 카카오** 세 가지 |
+| 비밀번호 | **bcrypt** (`bcryptjs`, 작업 계수 12) — 원문은 어디에도 저장하지 않는다 |
+| 비밀번호 규칙 | 10자 이상 + 대문자·소문자·숫자·특수문자 각 1자 이상 (서버에서 재검사) |
+| 소셜 로그인 | **OpenID Connect** (`openid-client`) — PKCE·state·id_token 서명 검증 위임 |
+| 사람을 알아보는 방법 | **서버 DB 에 저장한 세션** (HttpOnly 쿠키 + 불투명 난수 토큰). JWT 아님 |
+| 아이디·닉네임 중복 | 입력 중 확인 + **DB 유니크 인덱스**로 실제 차단 |
+| 남의 자료 차단 | Repository 의 모든 함수가 `user_id` 를 인자로 받는다. 남의 자료는 **404**(존재 자체를 감춤) |
+
+**소셜로 들어와도 로그인 상태를 유지하는 것은 우리 세션이다.** 제공자의 토큰은 신원 확인에 한 번 쓰고 버리므로, 소셜 로그인이어도 로그아웃 즉시 이전 값이 무효가 된다.
+
+자세한 근거와 **막히는 장면(요청·응답)** 은 [docs/인증_구현_설명서.md](docs/인증_구현_설명서.md) 에 있다.
+
+## 문서 색인
+
+| 문서 | 내용 |
+|---|---|
+| [작업내역_체크리스트.md](작업내역_체크리스트.md) | **여기부터 읽는다.** 현재 상태·결정 기록·작업 로그 (SSOT) |
+| [docs/인증_구현_설명서.md](docs/인증_구현_설명서.md) | **핵심 제출물.** 무엇으로 / 왜 / 어디를 / 확인 기록 / AI와 나 / 못 막은 것 |
+| [docs/5일_사용기록.md](docs/5일_사용기록.md) | 5일 실제 사용 기록과 3일차 전 계획 규칙 변경 |
+| [docs/00_과제_요구사항_매핑.md](docs/00_과제_요구사항_매핑.md) | 통과 기준 68개 1:1 매핑 |
+| [docs/01_기획.md](docs/01_기획.md) | 설계 기준 — 인증 구조·데이터 모델·접근 통제 규칙 |
+| [docs/05_배포.md](docs/05_배포.md) | 배포처 선택 근거와 절차 |
+| [docs/검증안내서.md](docs/검증안내서.md) | 짧은 확인 방법 4줄 + 점검 목록 |
+| [docs/트러블슈팅.md](docs/트러블슈팅.md) | 실제로 겪은 문제·시도·해결 |
+| [docs/AI_3줄.md](docs/AI_3줄.md) | AI 에게 맡긴 일 / 내가 판단한 일 / AI 말을 안 들은 일 |
+| [docs/포트폴리오_추가용_소개글.md](docs/포트폴리오_추가용_소개글.md) | 포트폴리오용 소개글 |
 
 ## 폴더 구조
 
+계층을 나누고 **"소유자 조건은 Repository 에만 있다"** 를 규칙으로 삼는다.
+
 ```
-plan-do-see-diary/
-├─ app/                           화면과 서버 API(App Router)
-├─ lib/                           DB·공유 조회 조건·입력 도우미
-├─ test/                          핵심 규칙과 플래너 날짜 계산 자동 검사
-├─ schema.sql                     PostgreSQL 표 6개·제약·트리거
-├─ package.json                   실행·빌드·검사 명령
-├─ scripts/                       제출 보고서 생성·검증안내서 추가 스크립트
-├─ reports/                       사용자 수정본·PC 증거 7장을 반영한 최종 PPTX 25장·PDF 25쪽
-├─ README.md                     이 문서
-├─ 작업내역_체크리스트.md          단일 진실 공급원(SSOT) — 진행·결정·작업 로그
-├─ CLAUDE.md / AGENTS.md / GEMINI.md   AI 진입 지침(토큰 절약 규칙)
-├─ contracts/
-│  └─ pds-schema-v2.json         표·항목·관계·날짜/단위 규칙·집계 정의 계약
-└─ docs/
-   ├─ 00_과제_요구사항_매핑.md    통과 기준 44개 1:1 매핑
-   ├─ 01_기획.md                 설계 전문(데이터 모델·집계식·작업 단계)
-   ├─ 05_배포.md                 배포처 비교·선택 근거·절차
-   ├─ 검증안내서.md               30초 안에 끝내는 확인 절차
-   ├─ 트러블슈팅.md               실제로 겪은 문제·시도·해결
-   ├─ AI_3줄.md                  AI에게 맡긴 일 / 내가 판단한 일 / 안 따른 일
-   ├─ 과제_제출_보고서.md         PPT/PDF의 근거가 되는 최종 보고서 원문
-   ├─ evidence/                   요구사항 ID별 증거 스크린샷 7장
-   └─ 포트폴리오_추가용_소개글.md
+app/**/page.tsx        View        화면. 서비스 결과를 그리기만 한다
+app/api/**/route.ts    Controller  요청 해석 -> 세션 확인 -> 서비스 호출 -> DTO 응답 (SQL 금지)
+  (auth)/              로그인·가입 화면
+  account/             계정 화면 (닉네임·비밀번호 변경, 계정 삭제)
+  api/auth/            중복확인·가입·로그인·로그아웃·비밀번호 변경, 구글·카카오 OIDC
+lib/service/           Service     업무 규칙과 트랜잭션 경계
+lib/repository/        Repository  SQL. 모든 함수가 user_id 를 인자로 받는다
+lib/domain/            Domain      순수 함수 (planner, query, rules, metric)
+lib/dto/               DTO         응답 필드 화이트리스트
+lib/session.ts         세션 발급·조회·폐기, requireUser()
+lib/db.ts              DB 연결 (서버 전용)
+middleware.ts          쿠키가 없으면 /login 으로 (보안 판단은 하지 않음)
+schema.sql             과제 6 표 6개
+schema_auth.sql        계정·소셜 신원·세션 표와 소유자 컬럼
+test/                  node --test 자동 검사
+docs/                  문서
 ```
 
-## 기술 스택
+### 계층 규칙
 
-Next.js(App Router) 단일 프로젝트 · 관리형 Postgres · Vercel 배포.
-DB 접속 문자열은 서버 라우트에서만 사용하며 `NEXT_PUBLIC_*`으로 노출하지 않는다.
-시간 단위는 전 구간 '분', 마감일은 서울 날짜(`date`), 시각은 UTC 저장(`timestamptz`) 후 서울 표시.
+| 규칙 | 이유 |
+|---|---|
+| Controller 에 SQL 을 쓰지 않는다 | SQL 이 흩어지면 소유자 조건을 빠뜨린 곳이 생긴다 |
+| Repository 의 모든 조회·수정·삭제는 `user_id` 를 인자로 받는다 | 소유자 없이 부를 수 있는 함수를 아예 만들지 않는다 |
+| 트랜잭션은 Service 에서만 연다 | 계정 삭제처럼 여러 표를 건드리는 일이 한 경계 안에서 끝난다 |
+| 응답은 반드시 DTO 를 거친다 | `SELECT *` 가 새 컬럼을 자동으로 실어 나르는 사고를 막는다 |
+| Domain 은 DB·HTTP 를 import 하지 않는다 | 규칙을 `node --test` 로 바로 검사할 수 있다 |
+
+## 로컬에서 돌리기
+
+```bash
+npm install
+```
+
+`.env.local` 에 DB 접속 문자열을 넣는다 (이 파일은 `.gitignore` 에 있어 커밋되지 않는다):
+
+```
+DATABASE_URL=postgres://…생략
+```
+
+```bash
+npm run dev
+```
+
+## 검사
+
+```bash
+npm test && npm run typecheck && npm run build && npm audit
+```
 
 ## 규칙
 
-- 코드를 고쳤으면 `작업내역_체크리스트.md`의 작업 로그를 같은 작업 단위에서 갱신한다.
-- 예시 자료를 지어내지 않는다. 계획·할 일·실행 기록은 사용자가 직접 입력한 실제 자료만 넣는다.
-
-## 로컬 실행
-
-1. 관리형 PostgreSQL을 만들고 `schema.sql`을 한 번 적용한다.
-2. 직접 연결할 때는 `.env.local`에 서버 전용 `DATABASE_URL`을 넣는다. Vercel Supabase 연동은 `vercel env pull .env.local`로 `POSTGRES_URL`을 내려받는다.
-3. `npm install` 후 `npm run dev`를 실행한다.
-
-검증 명령은 `npm test`, `npm run typecheck`, `npm run build`, `npm audit --omit=dev`이다.
+- **이 브랜치에서만 작업한다.** `main` 은 과제 6 제출본이므로 직접 커밋하지 않고, 완성 후 PR 로 합친다.
+- 비밀번호·토큰·비밀키의 원문은 코드·문서·로그 어디에도 넣지 않는다. 기록할 때는 가린다.
+- 코드를 고치면 [작업내역_체크리스트.md](작업내역_체크리스트.md) 의 작업 로그와 관련 문서를 같은 작업 단위로 갱신한다.

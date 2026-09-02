@@ -16,3 +16,6 @@ npm-debug.log*
 reports/assets/
 reports/preview/
 reports/backups/
+
+# 셸 크래시 덤프
+*.stackdump
