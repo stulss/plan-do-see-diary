@@ -79,6 +79,7 @@ plan-do-see-diary/
 - 계획 구분: 진행 계획·계획 카드·연결 할 일이 같은 고정 색을 사용하고 계획 없음은 중립색으로 표시
 - 과제 7 문서·증거: `docs/과제7/` 아래에만 추가
 - 로컬 검증 증거: `docs/과제7/evidence/auth-isolation-results.json`
+- PC 스크린샷 증거 색인: `docs/과제7/evidence/README.md` (T07-E01~E17)
 
 | 과제 7 제출 항목 | 값 |
 |---|---|
@@ -90,6 +91,7 @@ plan-do-see-diary/
 | 사용성 개선·검증 전체 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/7d2a3eba0b6904dcaf76b6e8a82e81192289f936/ |
 | 최근 사용성 수정 소스 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/108b4fe964d6a3f1f2009fe141d16ab44ab73acd/ |
 | 최신 문서 포함 전체 상태 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/db812fcd548f19cc4e4da82ea06063f40e21ee87/ |
+| PC 스크린샷 증거 전체 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/23926e7a7b84a4ed0043fc4256af6f3573b67561/ |
 | 인증 구현 설명서 | `docs/과제7/인증_구현_설명서.md` |
 | 짧은 확인 방법 4줄 | `docs/과제7/검증안내서.md` |
 | AI와 내 판단 3줄 | `docs/과제7/AI_3줄.md` |
