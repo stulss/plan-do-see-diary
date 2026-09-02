@@ -1,6 +1,20 @@
 # 과제 7 스크린샷 증거 색인
 
-모든 화면은 2026-09-02에 PC 환경에서 촬영했다. 비밀번호·세션 토큰·DB 접속 문자열은 어느 이미지에도 넣지 않았다.
+T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영했다. 비밀번호·세션 토큰·DB 접속 문자열은 어느 이미지에도 넣지 않았다.
+
+2026-09-03에는 자체 점검 7줄을 **실제 앱 화면과 GitHub 실제 검증 원본 화면**에 다시 연결했다.
+
+## 자체 점검 7줄의 실제 화면 연결
+
+| # | 자체 점검 내용 | 실제 화면 증거 | 판정 |
+|---|---|---|---|
+| 1 | 가입·로그인·로그아웃, 미로그인 자료 화면 차단 | `T07-E03-signup-pc.jpg`, `T07-E02-login-pc.jpg`, `T07-E08-planner-day-pc.jpg`의 로그아웃 버튼, `T07-A01-unauthenticated-tasks-redirect-pc.jpg` | ☑ |
+| 2 | 저장된 비밀번호에 입력 글자가 보이지 않음 | `T07-A04-password-secret-scan-actual-github-pc.jpg` — 실제 DB의 `$2b$12$`·60자·평문 일치 false | ☑ |
+| 3 | 로그아웃 뒤 같은 요청 거절 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 같은 `GET /api/tasks`가 200 → 401 | ☑ |
+| 4 | 남의 자료 읽기·수정·삭제 양방향 거절, 목록 유출 없음 | `T07-A02-auth-isolation-actual-github-pc.jpg` — 양방향 404·유출 0건 원본 | ☑ |
+| 5 | 설명서 ①~⑥ 분리, ⑥ 내용 있음 | `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | ☑ |
+| 6 | 서로 다른 실제 날짜 5일 기록과 3일차 전 규칙 변경 | `T07-E09-planner-week-pc.jpg`, `T07-E12-plan-detail-pc.jpg`는 현재 화면 참고용일 뿐 최종 증거가 아님 | ☐ 실제 5일 사용 대기 |
+| 7 | 제출물에 비밀번호·토큰·비밀키 원문 없음 | `T07-A04-password-secret-scan-actual-github-pc.jpg` — 실제 환경 변수 값 15개와 Git 이력·추적 파일 비교 0건 | ☑ |
 
 ## 제출용 스크린샷
 
@@ -23,11 +37,16 @@
 | `T07-E15-review-pc.jpg` | 조회 기간의 계획·완료·지연·막힘·예상·실제·차이 | C132 화면 증거(손계산 대조 대기) |
 | `T07-E16-account-pc.jpg` | 닉네임, 비밀번호 변경, 내보내기, 연쇄 삭제 안내 | C133, C134 |
 | `T07-E17-documents-submission-pc.jpg` | 설명서 6항목, 검증 4줄, AI 3줄, 공개 제출, 5일 규칙·대기 상태 | C01, C39, C40, C77, C78, C127~C131 |
+| `T07-A01-unauthenticated-tasks-redirect-pc.jpg` | 로그아웃 상태에서 `/tasks` 접근 시 실제 로그인 화면으로 이동 | C97, C124 |
+| `T07-A02-auth-isolation-actual-github-pc.jpg` | GitHub에 공개된 실제 인증 격리 JSON 전체 화면 | C94~C125 |
+| `T07-A03-auth-guide-six-sections-actual-github-pc.jpg` | GitHub에 공개된 인증 구현 설명서 ①~⑥ 전체 화면 | C91~C93, C101~C115, C126~C130 |
+| `T07-A04-password-secret-scan-actual-github-pc.jpg` | 실제 DB 비밀번호 저장 모양과 실제 환경 변수 값 비밀값 검사 결과 | C103~C106, C113, C131, C46 |
 
 ## 화면이 아닌 원본 검증 자료
 
 - `auth-isolation-results.json`: 자격증명과 세션 값을 기록하지 않은 공개 배포 자동 검증 원본
 - `T07-검증결과-화면.html`: E05~E07·E17 화면을 다시 만들 수 있는 정적 원본
+- `실제_보안검증_결과.md`: 2026-09-03 실제 DB 읽기·비밀값 비교 결과 원본
 
 ## 실제 5일 사용 뒤 추가할 증거
 

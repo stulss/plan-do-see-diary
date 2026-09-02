@@ -80,6 +80,7 @@ plan-do-see-diary/
 - 과제 7 문서·증거: `docs/과제7/` 아래에만 추가
 - 로컬 검증 증거: `docs/과제7/evidence/auth-isolation-results.json`
 - PC 스크린샷 증거 색인: `docs/과제7/evidence/README.md` (T07-E01~E17)
+- 자체 점검 실제 화면: `docs/과제7/evidence/README.md`의 T07-A01~A04 연결표
 
 | 과제 7 제출 항목 | 값 |
 |---|---|
