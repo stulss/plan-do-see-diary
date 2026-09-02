@@ -5,7 +5,7 @@
 | 구분 | 상태 | 진행 기록 | 문서·증거 |
 |---|---|---|---|
 | 과제 6 | P0~P7 완료·승인본 보존 | `작업내역_체크리스트.md` | `docs/*.md` · `docs/evidence/` · `reports/` |
-| **과제 7** | **로컬 인증·자료 귀속·격리 검증 완료, 공개 배포 대기** | **`과제7_작업내역_체크리스트.md`** | **`docs/과제7/*.md` · `docs/과제7/evidence/`** |
+| **과제 7** | **공개 배포·자료 귀속·격리 검증 완료, 5일 사용 진행 전** | **`과제7_작업내역_체크리스트.md`** | **`docs/과제7/*.md` · `docs/과제7/evidence/`** |
 
 > 과제 7 작업 중에도 과제 6 문서·보고서·증거는 삭제하거나 덮어쓰지 않는다.
 
@@ -73,6 +73,15 @@ plan-do-see-diary/
 - 자료 차단: 목록·검색·집계와 한 건 조회·수정·삭제 모두 `user_id` 조건 강제
 - 과제 7 문서·증거: `docs/과제7/` 아래에만 추가
 - 로컬 검증 증거: `docs/과제7/evidence/auth-isolation-results.json`
+
+| 과제 7 제출 항목 | 값 |
+|---|---|
+| 결과물 주소 | https://plan-do-see-diary.vercel.app |
+| 소스 저장소 | https://github.com/stulss/plan-do-see-diary |
+| 배포한 40자리 commit 고정 URL | https://github.com/stulss/plan-do-see-diary/commits/c1aaf195f674cff68da02a818737c1ffca650fe8/ |
+| 인증 구현 설명서 | `docs/과제7/인증_구현_설명서.md` |
+| 짧은 확인 방법 4줄 | `docs/과제7/검증안내서.md` |
+| AI와 내 판단 3줄 | `docs/과제7/AI_3줄.md` |
 
 ## 기술 스택
 
