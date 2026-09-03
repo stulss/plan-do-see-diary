@@ -172,9 +172,9 @@ async function buildDeck() {
     s.background = { color: C.paper };
     addTitle(s, "Contents", "무엇을 보여 드리는가", "설계 근거 → 구현 → 검증 → 실제 사용 결과 → 한계 순서로 이어집니다.", 2);
     const groups = [
-      ["설계와 구조", ["03  결과물과 고정 소스", "04  과제 6에서 이어받은 것", "05  기술 스택과 계층 구조", "06  데이터베이스 여덟 개 표", "07  무중단 4단계 마이그레이션"]],
-      ["인증 구현", ["08  인증 설계 결정 네 가지", "09  가입·로그인·로그아웃 흐름", "10  비밀번호 규칙과 중복 확인", "11  세션 수명주기", "12  소유권 강제 구조", "13  응답 DTO 계층"]],
-      ["검증과 결과", ["14  자동 검사 28건", "15  공개 배포 검증 결과", "16  30초 점검 목록", "17  5일 사용 결과", "18  손계산 대조", "19·20  실제 화면 증거", "21  트러블슈팅", "22  결정 기록", "23  AI와 남은 제한"]],
+      ["설계와 구조", ["03  결과물과 고정 소스", "04  과제 6에서 이어받은 것", "05  기술 스택과 계층 구조", "06  데이터베이스 여덟 개 표", "07  무중단 4단계 마이그레이션", "08  인증 설계 결정 네 가지"]],
+      ["인증 구현", ["09  설명서 ① ② ③ — 무엇으로·왜·흐름", "10  가입·로그인·로그아웃 흐름", "11  비밀번호 규칙과 중복 확인", "12  세션 수명주기", "13  소유권 강제 구조", "14  응답 DTO 계층", "15  설명서 ⑤ ⑥ — 규칙과 못 막은 것"]],
+      ["검증과 결과", ["16  자동 검사 28건", "17  공개 배포 검증 결과", "18  30초 점검 목록", "19  5일 사용 결과", "20  손계산 대조", "21~24  실제 화면 증거", "25  트러블슈팅", "26  결정 기록", "27  AI와 남은 제한"]],
     ];
     groups.forEach((g, i) => {
       const x = 0.62 + i * 4.08;
@@ -352,11 +352,49 @@ async function buildDeck() {
     addFooter(s);
   }
 
-  // 09 가입·로그인·로그아웃 흐름
+  // 09 설명서 ①②③
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Flow", "가입 · 로그인 · 로그아웃 · 자료 조회가 지나는 길", "네 흐름 모두 마지막에는 세션과 소유자 조건을 지난다.", 9);
+    addTitle(s, "Guide ① ② ③", "무엇으로 붙였고, 왜 그것을 골랐고, 어디를 지나는가", "docs/과제7/인증_구현_설명서.md 의 ①~③ 을 그대로 옮겼다 (T07-C127~C129).", 9);
+    addCard(s, 0.62, 1.9, 3.85, 2.95);
+    addText(s, "① 무엇으로 붙였는가", 0.85, 2.08, 3.4, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
+    addBulletList(s, [
+      "인증 방식 — 직접 구현한 서버 DB 세션",
+      "비밀번호 — bcryptjs 3.0.3, cost 12",
+      "앱 — Next.js 16.3.3",
+      "로그인 입력 — 아이디와 비밀번호",
+    ], 0.85, 2.45, 3.4, 1.35, { fontSize: 11, spaceAfter: 7 });
+    addText(s, "브라우저에는 불투명 세션 값을 HttpOnly 쿠키로 보내고, DB 에는 그 값의 SHA-256 해시와 7일 만료 시각만 저장한다.",
+      0.85, 3.85, 3.4, 0.55, { fontSize: 10.3, color: C.gray, valign: "top" });
+    addCard(s, 4.72, 1.9, 3.85, 2.95);
+    addText(s, "② 왜 이 방법을 골랐는가", 4.95, 2.08, 3.4, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
+    addText(s, "bcryptjs 는 계정마다 임의 소금값을 자동 포함하고 서버리스에서 네이티브 빌드가 필요 없다. DB 세션은 로그아웃·비밀번호 변경 즉시 행을 지워 이전 세션을 폐기할 수 있다.",
+      4.95, 2.45, 3.4, 0.95, { fontSize: 10.8, color: C.ink, valign: "top" });
+    addText(s, "검토했지만 고르지 않은 것", 4.95, 3.42, 3.4, 0.26, { fontSize: 10.5, bold: true, color: C.coral });
+    addBulletList(s, [
+      "Auth.js Credentials — JWT 세션이라 즉시 폐기가 어렵다",
+      "Supabase Auth — 토큰 만료 전 즉시 차단을 따로 설계해야 한다",
+      "express-session — App Router 에 별도 서버·어댑터가 필요하다",
+    ], 4.95, 3.7, 3.4, 1.05, { fontSize: 9.8, spaceAfter: 4 });
+    addCard(s, 8.82, 1.9, 3.85, 2.95, { fill: C.mint, line: C.mint });
+    addText(s, "③ 흐름과 핵심 소스", 9.05, 2.08, 3.4, 0.3, { fontSize: 12.5, bold: true, color: C.green });
+    addText(s, "가입   /signup → POST /api/auth/signup\n         → service/auth → repository/user\n\n로그인   /login → POST /api/auth/login\n         → service/auth → lib/session\n\n로그아웃   POST /api/auth/logout\n         → lib/session → repository/session\n\n자료 조회   middleware → lib/session\n         → domain/query → lib/dto/records",
+      9.05, 2.45, 3.4, 2.25, { fontSize: 9.6, color: C.ink, breakLine: true, valign: "top" });
+    addCard(s, 0.62, 5.05, 12.05, 1.7, { fill: C.cream });
+    addText(s, "세 흐름이 공통으로 지키는 것", 0.85, 5.22, 5.0, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
+    addText(s, "사용자 ID 는 URL·헤더·요청 본문에서 받지 않고 검증된 세션에서만 정한다.\n한 건 조회·수정·삭제도 id 와 user_id 를 함께 조건으로 써서, 남의 자료의 존재를 드러내지 않는 404 를 돌려준다.",
+      0.85, 5.58, 11.6, 0.7, { fontSize: 12, color: C.ink, breakLine: true, valign: "top" });
+    addText(s, "검증 기록에는 아이디·이메일·비밀번호·세션 쿠키·DB 접속 문자열 원문을 남기지 않았다. 일회성 검증 계정과 자료는 검증 직후 삭제했다.",
+      0.85, 6.35, 11.6, 0.3, { fontSize: 11, color: C.gray });
+    addFooter(s);
+  }
+
+  // 10 가입·로그인·로그아웃 흐름
+  {
+    const s = pptx.addSlide();
+    s.background = { color: C.paper };
+    addTitle(s, "Flow", "가입 · 로그인 · 로그아웃 · 자료 조회가 지나는 길", "네 흐름 모두 마지막에는 세션과 소유자 조건을 지난다.", 10);
     const flows = [
       ["가입", ["아이디·닉네임·이메일·비밀번호 4칸", "규칙 검사를 서버에서 다시 한다", "bcrypt(cost 12) 로 해시해 저장", "DB 유니크 인덱스가 중복을 최종 차단", "성공하면 곧바로 세션 생성"]],
       ["로그인", ["아이디로 계정을 찾는다", "bcrypt.compare 로 대조", "아이디가 없든 비밀번호가 틀리든 같은 문구·401", "난수 토큰 발급, DB 에는 SHA-256 만 저장", "httpOnly·secure·sameSite=lax 쿠키"]],
@@ -377,7 +415,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Rules", "시도 제한이 없는 대신, 추측 난이도와 중복을 구조로 막았다", "규칙 검사는 lib/domain/rules.ts 한 곳에만 두고 서버에서 반드시 다시 검사한다.", 10);
+    addTitle(s, "Rules", "시도 제한이 없는 대신, 추측 난이도와 중복을 구조로 막았다", "규칙 검사는 lib/domain/rules.ts 한 곳에만 두고 서버에서 반드시 다시 검사한다.", 11);
     addCard(s, 0.62, 1.95, 5.85, 2.6);
     addText(s, "비밀번호 규칙", 0.85, 2.15, 4.0, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
     addBulletList(s, [
@@ -405,7 +443,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Session Lifecycle", "서버가 언제든 세션을 없앨 수 있다", "쿠키에 든 값은 의미 없는 난수다. DB 에 그 값의 해시가 있어야만 유효하다.", 11);
+    addTitle(s, "Session Lifecycle", "서버가 언제든 세션을 없앨 수 있다", "쿠키에 든 값은 의미 없는 난수다. DB 에 그 값의 해시가 있어야만 유효하다.", 12);
     const life = [
       ["발급", "randomBytes(32) 난수\n→ 쿠키에 원문\n→ DB 에 SHA-256 만", C.green],
       ["사용", "쿠키 토큰을 해시해\nDB 조회 · 만료 확인\ngetSessionUser()", C.green],
@@ -443,7 +481,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Ownership", "사용자는 세션에서만 정해지고, 소유자 조건은 한곳에서 만든다", "주소·헤더·요청 본문에서 사용자 ID 를 읽는 코드는 이 프로젝트에 존재하지 않는다.", 12);
+    addTitle(s, "Ownership", "사용자는 세션에서만 정해지고, 소유자 조건은 한곳에서 만든다", "주소·헤더·요청 본문에서 사용자 ID 를 읽는 코드는 이 프로젝트에 존재하지 않는다.", 13);
     const steps = [
       ["요청", "쿠키의 난수 토큰"],
       ["세션 확인", "SHA-256 해시로 DB 조회\ngetSessionUser()"],
@@ -474,7 +512,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Response DTO", "DB 행을 그대로 돌려주지 않는다", "SELECT * 로 뽑은 행을 그대로 실으면, 나중에 추가한 컬럼이 자동으로 새어 나간다.", 13);
+    addTitle(s, "Response DTO", "DB 행을 그대로 돌려주지 않는다", "SELECT * 로 뽑은 행을 그대로 실으면, 나중에 추가한 컬럼이 자동으로 새어 나간다.", 14);
     addCard(s, 0.62, 1.95, 5.85, 2.45, { fill: "FDF1EE", line: C.coral });
     addText(s, "고치기 전", 0.85, 2.15, 4.0, 0.3, { fontSize: 12.5, bold: true, color: C.coral });
     addText(s, "return NextResponse.json(rows);\n\n→ user_id · deleted_at · 내부 시각 컬럼이\n    응답에 그대로 실렸다.",
@@ -493,11 +531,37 @@ async function buildDeck() {
     addFooter(s);
   }
 
-  // 14 자동 검사 28건
+  // 설명서 ⑤·⑥
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Automated Tests", "자동 검사 28건이 무엇을 지키고 있는가", "node --test · 외부 프레임워크 없이 표준 러너만 쓴다. 기존 단언을 약화시키지 않았다.", 14);
+    addTitle(s, "Guide ⑤ ⑥", "지킨 규칙과, 아직 못 막은 것", "못 막은 것을 적지 않으면 이 항목은 통과가 아니다 (T07-C130).", 15);
+    addCard(s, 0.62, 1.9, 5.85, 4.85, { fill: C.mint, line: C.mint });
+    addText(s, "⑤ 세션 · 저장 · 보안 세부 규칙", 0.85, 2.1, 5.0, 0.3, { fontSize: 12.5, bold: true, color: C.green });
+    addBulletList(s, [
+      "세션 쿠키 — HttpOnly · SameSite=Lax · 배포 환경 Secure · 유효기간 7일",
+      "서버 저장 — 세션 원문이 아니라 SHA-256 해시만 user_session 에 저장",
+      "비밀번호 — bcrypt cost 12, 응답 DTO 와 로그에서 제외",
+      "중복 방지 — 아이디·닉네임·이메일의 대소문자 무시 유니크 인덱스",
+      "소유권 — plan·task·review 의 user_id NOT NULL, 목록·검색·집계와 단건 변경 모두 적용",
+      "세션 폐기 — 로그아웃은 현재 세션 삭제, 비밀번호 변경은 그 사용자의 모든 세션 삭제",
+    ], 0.85, 2.5, 5.35, 4.05, { fontSize: 11.5, spaceAfter: 11 });
+    addCard(s, 6.82, 1.9, 5.85, 4.85, { fill: "FDF1EE", line: C.coral });
+    addText(s, "⑥ 아직 못 막은 것과 위험", 7.05, 2.1, 5.0, 0.3, { fontSize: 12.5, bold: true, color: C.coral });
+    addBulletList(s, [
+      "로그인 시도 횟수 제한·계정 잠금·CAPTCHA 가 없다. 강한 비밀번호 규칙은 추측 난도를 높이지만 무차별 대입 시도 자체를 막지 못한다.",
+      "중복확인 API 에 호출 횟수 제한이 없어 아이디·닉네임 존재 여부를 반복 조회할 수 있다. 이메일은 이 API 에서 확인해 주지 않아 범위를 줄였다.",
+      "아이디 찾기와 등록 정보 일치 방식의 비밀번호 재설정은 이메일 소유 확인·일회용 링크가 없다. 등록 정보를 아는 사람이 복구를 시도할 위험이 있어, 운영 서비스라면 메일 인증으로 교체해야 한다.",
+      "관리자용 세션 강제 종료와 감사 로그가 없다. 계정 이상 징후를 운영자가 추적하기 어렵다.",
+    ], 7.05, 2.5, 5.35, 4.05, { fontSize: 11.2, spaceAfter: 12 });
+    addFooter(s);
+  }
+
+  // 자동 검사 28건
+  {
+    const s = pptx.addSlide();
+    s.background = { color: C.paper };
+    addTitle(s, "Automated Tests", "자동 검사 28건이 무엇을 지키고 있는가", "node --test · 외부 프레임워크 없이 표준 러너만 쓴다. 기존 단언을 약화시키지 않았다.", 16);
     addTable(s, ["검사 파일", "건수", "지키는 것"], [3.15, 1.05, 7.85], [
       ["auth.test.mjs", "8", "비밀번호 해시·세션 발급과 폐기·소유자 조건·DTO 누출 차단"],
       ["rules.test.js", "6", "비밀번호 복잡도·아이디/닉네임 형식·서버 재검사"],
@@ -517,7 +581,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Verification", "공개 배포 주소에서 확인한 결과", "일회성 계정으로 검증하고 증거를 남긴 뒤 계정과 자료를 정리했다.", 15);
+    addTitle(s, "Verification", "공개 배포 주소에서 확인한 결과", "일회성 계정으로 검증하고 증거를 남긴 뒤 계정과 자료를 정리했다.", 17);
     addTable(s, ["검증 항목", "결과"], [6.6, 5.45], [
       ["미로그인 자료 API", "401"],
       ["공개 첫 화면 · /tasks", "선택 화면 200 · 자료 화면 307 → /login"],
@@ -539,7 +603,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Quick Check", "심사자가 30초 안에 확인하는 순서", "새 시크릿 창에서 세 단계 안에 끝난다. 심사자는 제 계정으로 로그인하지 않는다.", 16);
+    addTitle(s, "Quick Check", "심사자가 30초 안에 확인하는 순서", "새 시크릿 창에서 세 단계 안에 끝난다. 심사자는 제 계정으로 로그인하지 않는다.", 18);
     addCard(s, 0.62, 1.9, 12.05, 1.5, { fill: C.mint, line: C.mint });
     const four = [
       ["① 어디로", "plan-do-see-diary.vercel.app\n새 시크릿 창에서 연다"],
@@ -570,7 +634,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "5-Day Study", "계획 규칙을 하나 바꾸고 전후를 같은 지표로 비교", "질문: 계획한 시간과 실제로 쓴 시간의 차이를, 계획 규칙을 바꿔서 줄일 수 있는가?", 17);
+    addTitle(s, "5-Day Study", "계획 규칙을 하나 바꾸고 전후를 같은 지표로 비교", "질문: 계획한 시간과 실제로 쓴 시간의 차이를, 계획 규칙을 바꿔서 줄일 수 있는가?", 19);
     addText(s, "지표   하루 시간 오차율 (%) = (그날 완료한 할 일의 실제 분 합 − 예상 분 합) ÷ 예상 분 합 × 100   ·   소수 첫째 자리 반올림",
       0.62, 1.82, 12.05, 0.3, { fontSize: 11, color: C.gray });
     addTable(s, ["일차", "날짜", "예상", "실제", "오차율"], [1.15, 2.2, 1.35, 1.35, 1.55], [
@@ -598,7 +662,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Hand Check", "화면 합계와 손으로 더한 값이 같은지 대조", "돌아보기 화면은 완료일이 아니라 마감일로 거른다. 5일치 마감일이 8/31~9/4 라 기간을 9/4 까지 잡아야 5건이 모두 잡힌다.", 18);
+    addTitle(s, "Hand Check", "화면 합계와 손으로 더한 값이 같은지 대조", "돌아보기 화면은 완료일이 아니라 마감일로 거른다. 5일치 마감일이 8/31~9/4 라 기간을 9/4 까지 잡아야 5건이 모두 잡힌다.", 20);
     await addEvidence(s, "T07-A17-five-day-totals-hand-check-pc.jpg", 0.62, 1.95, 7.3, 4.75, "T07-A17 · 공개 배포 돌아보기 (기간 2026.08.29–2026.09.04)");
     addCard(s, 8.15, 1.95, 4.52, 4.75);
     addText(s, "손 계산", 8.38, 2.15, 3.0, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
@@ -619,13 +683,36 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Evidence · App", "공개 배포 앱 화면", "로그인 전 화면은 계정 없이도 열리고, 로그인 뒤 화면에는 그 계정의 자료만 나온다.", 19);
-    await addEvidence(s, "T07-E01-public-entry-pc.jpg", 0.62, 1.95, 3.85, 2.35, "T07-E01 · 공개 시작 화면");
-    await addEvidence(s, "T07-E02-login-pc.jpg", 4.72, 1.95, 3.85, 2.35, "T07-E02 · 로그인");
-    await addEvidence(s, "T07-E03-signup-pc.jpg", 8.82, 1.95, 3.85, 2.35, "T07-E03 · 회원가입");
-    await addEvidence(s, "T07-E09-planner-week-pc.jpg", 0.62, 4.45, 3.85, 2.35, "T07-E09 · 주간 플래너");
-    await addEvidence(s, "T07-E13-tasks-pc.jpg", 4.72, 4.45, 3.85, 2.35, "T07-E13 · 할 일 목록");
-    await addEvidence(s, "T07-E15-review-pc.jpg", 8.82, 4.45, 3.85, 2.35, "T07-E15 · 돌아보기");
+    addTitle(s, "Evidence · Public", "로그인 전, 계정 없이 열리는 화면", "심사자가 계정을 만들지 않고도 여기까지는 볼 수 있다 (T07-C01 / C03).", 21);
+    await addEvidence(s, "T07-E01-public-entry-pc.jpg", 0.62, 1.95, 5.85, 2.35, "T07-E01 · 공개 시작 화면 (로그인·회원가입 선택)");
+    await addEvidence(s, "T07-E02-login-pc.jpg", 6.82, 1.95, 5.85, 2.35, "T07-E02 · 로그인");
+    await addEvidence(s, "T07-E03-signup-pc.jpg", 0.62, 4.45, 5.85, 2.35, "T07-E03 · 회원가입 (아이디·닉네임·이메일·비밀번호)");
+    await addEvidence(s, "T07-E04-recover-pc.jpg", 6.82, 4.45, 5.85, 2.35, "T07-E04 · 아이디·비밀번호 찾기");
+    addFooter(s);
+  }
+
+  // 증거 — 플래너 일간·주간·월간
+  {
+    const s = pptx.addSlide();
+    s.background = { color: C.paper };
+    addTitle(s, "Evidence · Planner", "같은 자료를 일간 · 주간 · 월간으로", "로그인한 계정의 자료만 나온다. 할 일을 끌어 놓아 날짜를 바꿔도 소유자 조건이 강제된다.", 22);
+    await addEvidence(s, "T07-E08-planner-day-pc.jpg", 0.62, 1.95, 3.85, 4.75, "T07-E08 · 일간");
+    await addEvidence(s, "T07-E09-planner-week-pc.jpg", 4.72, 1.95, 3.85, 4.75, "T07-E09 · 주간 (드래그로 날짜 이동)");
+    await addEvidence(s, "T07-E10-planner-month-pc.jpg", 8.82, 1.95, 3.85, 4.75, "T07-E10 · 월간");
+    addFooter(s);
+  }
+
+  // 증거 — 자료 화면과 계정
+  {
+    const s = pptx.addSlide();
+    s.background = { color: C.paper };
+    addTitle(s, "Evidence · Records", "계획 · 할 일 · 돌아보기와 계정 화면", "모두 로그인 뒤에만 열리고, 세션의 사용자 자료만 담긴다.", 23);
+    await addEvidence(s, "T07-E11-plans-pc.jpg", 0.62, 1.95, 3.85, 2.35, "T07-E11 · 계획 목록");
+    await addEvidence(s, "T07-E12-plan-detail-pc.jpg", 4.72, 1.95, 3.85, 2.35, "T07-E12 · 계획 상세와 수정 이력");
+    await addEvidence(s, "T07-E13-tasks-pc.jpg", 8.82, 1.95, 3.85, 2.35, "T07-E13 · 할 일 목록");
+    await addEvidence(s, "T07-E14-task-detail-pc.jpg", 0.62, 4.45, 3.85, 2.35, "T07-E14 · 할 일 상세와 실행 기록");
+    await addEvidence(s, "T07-E15-review-pc.jpg", 4.72, 4.45, 3.85, 2.35, "T07-E15 · 돌아보기");
+    await addEvidence(s, "T07-E16-account-pc.jpg", 8.82, 4.45, 3.85, 2.35, "T07-E16 · 계정 (비밀번호 변경·내보내기·삭제)");
     addFooter(s);
   }
 
@@ -633,7 +720,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Evidence · API & DB", "Postman 요청·응답과 실제 데이터베이스 화면", "요약 화면이 아니라 실제로 동작하는 화면만 제출 증거로 쓴다. 비밀번호·쿠키·토큰은 모두 가렸다.", 20);
+    addTitle(s, "Evidence · API & DB", "Postman 요청·응답과 실제 데이터베이스 화면", "요약 화면이 아니라 실제로 동작하는 화면만 제출 증거로 쓴다. 비밀번호·쿠키·토큰은 모두 가렸다.", 24);
     await addEvidence(s, "T07-A10-postman-unauthenticated-401-pc.png", 0.62, 1.95, 3.85, 2.35, "T07-A10 · 미로그인 401");
     await addEvidence(s, "T07-A14-postman-after-logout-401-pc.png", 4.72, 1.95, 3.85, 2.35, "T07-A14 · 로그아웃 뒤 401");
     await addEvidence(s, "T07-A22-postman-secondary-list-isolated-pc.png", 8.82, 1.95, 3.85, 2.35, "T07-A22 · 목록에 본인 자료만");
@@ -647,7 +734,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Troubleshooting", "실제로 막혔던 네 가지와 배운 것", "겪지 않은 문제는 적지 않았다. 아래는 모두 이번 과제에서 실제로 발생한 것이다.", 21);
+    addTitle(s, "Troubleshooting", "실제로 막혔던 네 가지와 배운 것", "겪지 않은 문제는 적지 않았다. 아래는 모두 이번 과제에서 실제로 발생한 것이다.", 25);
     const issues = [
       ["DDL 락으로 마이그레이션이 끝나지 않음", "두 프로세스가 동시에 스키마를 적용하며 서로의 락을 기다렸다.", "적용 상태 사전 검사와 연결·락·문장 제한 시간을 걸고 한 프로세스만 실행한다."],
       ["DB 시간대를 바꿨는데 UTC 가 계속 보임", "ALTER DATABASE 는 성공했지만 풀러가 기존 물리 연결을 재사용했다.", "설정·검증은 직접 연결로 하고 앱 연결에는 TimeZone 을 명시한다. timestamptz 값에 9시간을 더하지 않는다."],
@@ -670,7 +757,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Decisions", "무엇을 고르고 무엇을 버렸는가", "선호가 아니라 과제의 통과 기준과 위험을 근거로 정했다.", 22);
+    addTitle(s, "Decisions", "무엇을 고르고 무엇을 버렸는가", "선호가 아니라 과제의 통과 기준과 위험을 근거로 정했다.", 26);
     addTable(s, ["결정", "근거", "버린 대안과 이유"], [3.1, 4.5, 4.45], [
       ["자체 DB 세션", "서버가 세션을 폐기할 수 있어야 한다", "Auth.js Credentials → JWT 고정, 폐기 불가"],
       ["bcrypt cost 12", "계정마다 소금값 자동 생성·포함", "scrypt/PBKDF2 → 소금·형식·비교를 직접 작성"],
@@ -688,7 +775,7 @@ async function buildDeck() {
   {
     const s = pptx.addSlide();
     s.background = { color: C.paper };
-    addTitle(s, "Judgment & Limits", "AI가 만든 것, 내가 정한 것, 그리고 남은 구멍", "무엇을 못 막았는지까지 적어야 이 과제가 끝난다.", 23);
+    addTitle(s, "Judgment & Limits", "AI가 만든 것, 내가 정한 것, 그리고 남은 구멍", "무엇을 못 막았는지까지 적어야 이 과제가 끝난다.", 27);
     addCard(s, 0.62, 1.95, 7.3, 3.05);
     addText(s, "AI와 내 판단 3줄", 0.85, 2.15, 4.0, 0.3, { fontSize: 12.5, bold: true, color: C.gold });
     addBulletList(s, [
