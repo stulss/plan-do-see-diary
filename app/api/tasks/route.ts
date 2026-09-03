@@ -4,6 +4,7 @@ import { integer, requestValues, result, value } from "@/lib/http";
 import { buildTaskWhere, Metric, TaskFilter } from "@/lib/domain/query";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
 import { taskDateRange, taskSchedule } from "@/lib/domain/time";
+import { publicTask } from "@/lib/dto/records";
 
 function filters(params: URLSearchParams): TaskFilter {
   const take = (name: string) => params.get(name) || undefined;
@@ -25,7 +26,13 @@ export async function GET(request: NextRequest) {
       FROM task t LEFT JOIN plan p ON p.id = t.plan_id LEFT JOIN task_completion c ON c.task_id = t.id
       WHERE ${where.text}
       ORDER BY t.due_date ASC NULLS LAST, t.priority DESC, t.id ASC`, where.values);
-    return NextResponse.json(rows);
+    // DB 행 전체를 그대로 보내지 않고 공개 필드와 화면 계산값만 골라 보낸다.
+    return NextResponse.json(rows.map((row) => ({
+      ...publicTask(row),
+      plan_title: row.plan_title,
+      completed_at: row.completed_at,
+      actual_minutes: row.actual_minutes
+    })));
   } catch (error) { return databaseError(error); }
 }
 

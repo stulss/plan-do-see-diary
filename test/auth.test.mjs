@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { checkLoginId, checkNickname, checkPassword } from "../lib/domain/rules.ts";
 import { buildTaskWhere } from "../lib/domain/query.ts";
 import { me, publicUser } from "../lib/dto/user.ts";
@@ -55,9 +56,16 @@ test("응답 DTO 는 비밀번호 해시를 절대 내보내지 않는다", () =
   assert.equal(Object.keys(me(row)).includes("password_hash"), false);
 
   // 자료 DTO 도 목록에 없는 컬럼은 통과시키지 않는다.
-  const task = { id: "1", plan_id: "1", title: "쓰기", user_id: "9", secret_column: "x" };
+  const task = { id: "1", plan_id: "1", title: "쓰기", user_id: "9", deleted_at: null, secret_column: "x" };
   assert.equal(Object.keys(publicTask(task)).includes("secret_column"), false);
   assert.equal(Object.keys(publicTask(task)).includes("user_id"), false);
+  assert.equal(Object.keys(publicTask(task)).includes("deleted_at"), false);
+});
+
+test("할 일 목록 API는 DB 행을 DTO로 가린 뒤 응답한다", async () => {
+  const source = await readFile(new URL("../app/api/tasks/route.ts", import.meta.url), "utf8");
+  assert.match(source, /rows\.map\(\(row\) => \(\{\s*\.\.\.publicTask\(row\)/s);
+  assert.doesNotMatch(source, /NextResponse\.json\(rows\)/);
 });
 
 test("하루 시간 오차율은 결측을 빼고 소수점 첫째 자리에서 반올림한다", () => {
