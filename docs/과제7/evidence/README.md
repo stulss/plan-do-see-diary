@@ -48,6 +48,20 @@ T07-E 화면은 2026-09-02, T07-A 화면은 2026-09-03에 PC 환경에서 촬영
 | `T07-A07-five-day-tasks-actual-db-pc.png` | Vercel Supabase 데이터 편집기의 실제 `task` 5행과 서로 다른 서울 생성일 | C07 |
 | `T07-A08-auth-owner-db-summary-pc.png` | 읽기 전용 실제 DB 결과: bcrypt 형식·60자·평문 아님, 세션 SHA-256 길이·만료, 소유자 미귀속 0건, 서울 5일, 수정 시각 | C100, C103, C111, C07, C10 |
 | `T07-A09-database-schema-actual-pc.png` | 실제 DB 스키마 관계도: `app_user`, `user_session`, `plan`, `task`, `review`, `run_log`, `task_completion`, `plan_revision` | C100, C108, C111, C123 |
+| `T07-A10-postman-unauthenticated-401-pc.png` | Postman의 미로그인 `GET /api/tasks` 요청과 401 응답 | C97, C124 |
+| `T07-A11-postman-login-id-duplicate-pc.png` | Postman의 아이디 중복 확인 요청 본문과 `available: false` 응답 | C98 |
+| `T07-A12-postman-login-200-pc.png` | 기존 테스트 계정 로그인 요청의 200 응답과 비밀번호 없는 사용자 DTO | C95, C105~C106 |
+| `T07-A13-postman-logout-200-pc.png` | Postman의 빈 로그아웃 요청 본문과 `signedOut: true` 응답 | C96, C109 |
+| `T07-A14-postman-after-logout-401-pc.png` | 로그아웃 뒤 `GET /api/tasks`를 다시 보낸 401 응답 | C96, C109, C124 |
+| `T07-A15-postman-missing-id-401-pc.png` | 존재하지 않는 아이디와 가린 비밀번호 요청 본문, 공통 401 안내 | C99 |
+| `T07-A16-postman-wrong-password-401-pc.png` | 기존 아이디와 가린 틀린 비밀번호 요청 본문, 동일한 401 안내 | C99 |
+
+## Postman 요청 본문 촬영 원칙
+
+- 아이디 중복 확인, 빈 로그아웃 요청, 실패 로그인 두 건은 요청 본문이 보이도록 촬영했다.
+- 성공 로그인에는 실제 테스트 계정을 사용했지만 비밀번호가 든 본문 탭은 촬영하지 않았다. 실패 로그인 비밀번호는 `<masked>`로 보냈다.
+- 응답에는 비밀번호·세션 토큰·쿠키가 없으며 Postman 화면에도 해당 원문을 노출하지 않았다.
+- 기존 테스트 계정으로 충분해 새 계정은 만들지 않았다.
 
 ## DB 화면으로 교체한 증거
 
