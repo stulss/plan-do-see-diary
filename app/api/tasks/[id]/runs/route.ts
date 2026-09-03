@@ -3,6 +3,7 @@ import { db, databaseError } from "@/lib/db";
 import { idParam, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
 import { runDuration } from "@/lib/domain/time";
+import { publicRun } from "@/lib/dto/records";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,6 +20,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       FROM task t WHERE t.id = ${idParam(id)} AND t.user_id = ${user.id} AND t.deleted_at IS NULL
       RETURNING *`;
     if (!rows[0]) return notFound("할 일을 찾지 못했습니다.");
-    return result(request, rows[0], `/tasks/${id}`);
+    return result(request, publicRun(rows[0]), `/tasks/${id}`);
   } catch (error) { return databaseError(error); }
 }

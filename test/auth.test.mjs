@@ -62,10 +62,21 @@ test("응답 DTO 는 비밀번호 해시를 절대 내보내지 않는다", () =
   assert.equal(Object.keys(publicTask(task)).includes("deleted_at"), false);
 });
 
-test("할 일 목록 API는 DB 행을 DTO로 가린 뒤 응답한다", async () => {
-  const source = await readFile(new URL("../app/api/tasks/route.ts", import.meta.url), "utf8");
-  assert.match(source, /rows\.map\(\(row\) => \(\{\s*\.\.\.publicTask\(row\)/s);
-  assert.doesNotMatch(source, /NextResponse\.json\(rows\)/);
+test("자료 API는 DB 행을 DTO로 가린 뒤 응답한다", async () => {
+  const routes = await Promise.all([
+    "../app/api/plans/route.ts",
+    "../app/api/plans/[id]/route.ts",
+    "../app/api/tasks/route.ts",
+    "../app/api/tasks/[id]/route.ts",
+    "../app/api/tasks/[id]/runs/route.ts",
+    "../app/api/review/route.ts"
+  ].map((path) => readFile(new URL(path, import.meta.url), "utf8")));
+  assert.match(routes[0], /rows\.map\(publicPlan\)/);
+  assert.match(routes[1], /publicPlan\(plan\[0\]\)/);
+  assert.match(routes[2], /\.\.\.publicTask\(row\)/);
+  assert.match(routes[3], /\.\.\.publicTask\(tasks\[0\]\)/);
+  assert.match(routes[4], /publicRun\(rows\[0\]\)/);
+  assert.match(routes[5], /publicReview\(rows\[0\]\)/);
 });
 
 test("하루 시간 오차율은 결측을 빼고 소수점 첫째 자리에서 반올림한다", () => {

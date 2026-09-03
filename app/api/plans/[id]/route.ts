@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, databaseError } from "@/lib/db";
 import { idParam, integer, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
+import { publicPlan, publicPlanRevision } from "@/lib/dto/records";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -18,7 +19,12 @@ export async function GET(_: NextRequest, { params }: Context) {
       WHERE p.id = ${id} AND p.user_id = ${user.id}`;
     if (!plan[0]) return notFound("계획을 찾지 못했습니다.");
     const revisions = await db()`SELECT * FROM plan_revision WHERE plan_id = ${id} ORDER BY revised_at DESC, id DESC`;
-    return NextResponse.json({ ...plan[0], revisions });
+    return NextResponse.json({
+      ...publicPlan(plan[0]),
+      carried_period_start: plan[0].carried_period_start,
+      carried_period_end: plan[0].carried_period_end,
+      revisions: revisions.map(publicPlanRevision)
+    });
   } catch (error) {
     return databaseError(error);
   }
@@ -34,7 +40,7 @@ async function update(request: NextRequest, id: string, userId: string) {
       success_criteria = ${value(body, "success_criteria")}, estimate_minutes = ${integer(body, "estimate_minutes", false)}
     WHERE id = ${idParam(id)} AND user_id = ${userId} RETURNING *`;
   if (!rows[0]) return notFound("계획을 찾지 못했습니다.");
-  return result(request, rows[0], `/plans/${id}`, 200);
+  return result(request, publicPlan(rows[0]), `/plans/${id}`, 200);
 }
 
 async function remove(request: NextRequest, id: string, userId: string) {

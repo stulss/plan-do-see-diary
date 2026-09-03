@@ -56,6 +56,6 @@ export async function POST(request: NextRequest) {
           SELECT p.id, ${title}, ${note}, ${dates.startDate}, ${dates.endDate}, ${schedule.startMinute}, ${schedule.endMinute}, ${priority}, ${tags}, ${schedule.minutes}, p.user_id
           FROM plan p WHERE p.id=${planId} AND p.user_id=${user.id} RETURNING *`;
     if (!rows[0]) return notFound("계획을 찾지 못했습니다.");
-    return result(request, rows[0], "/tasks");
+    return result(request, publicTask(rows[0]), "/tasks");
   } catch (error) { return databaseError(error); }
 }

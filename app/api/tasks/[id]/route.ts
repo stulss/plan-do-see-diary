@@ -3,6 +3,7 @@ import { db, databaseError } from "@/lib/db";
 import { idParam, integer, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, notFound, unauthorized } from "@/lib/session";
 import { taskDateRange, taskSchedule } from "@/lib/domain/time";
+import { publicRun, publicTask } from "@/lib/dto/records";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -16,7 +17,12 @@ export async function GET(_: NextRequest, { params }: Context) {
       db()`SELECT t.*, COALESCE(p.title, '계획 없음') AS plan_title, c.completed_at FROM task t LEFT JOIN plan p ON p.id=t.plan_id LEFT JOIN task_completion c ON c.task_id=t.id WHERE t.id=${id} AND t.user_id=${user.id} AND t.deleted_at IS NULL`,
       db()`SELECT r.* FROM run_log r JOIN task t ON t.id=r.task_id WHERE r.task_id=${id} AND t.user_id=${user.id} ORDER BY r.started_at DESC, r.id DESC`
     ]);
-    return tasks[0] ? NextResponse.json({ ...tasks[0], runs }) : notFound("할 일을 찾지 못했습니다.");
+    return tasks[0] ? NextResponse.json({
+      ...publicTask(tasks[0]),
+      plan_title: tasks[0].plan_title,
+      completed_at: tasks[0].completed_at,
+      runs: runs.map(publicRun)
+    }) : notFound("할 일을 찾지 못했습니다.");
   } catch (error) { return databaseError(error); }
 }
 
@@ -31,7 +37,7 @@ async function update(request: NextRequest, id: string, userId: string) {
     priority=${integer(body, "priority")}, tags=${tags}, estimate_minutes=${schedule.minutes}, updated_at=now()
     WHERE id=${idParam(id)} AND user_id=${userId} AND deleted_at IS NULL RETURNING *`;
   if (!rows[0]) return notFound("할 일을 찾지 못했습니다.");
-  return result(request, rows[0], `/tasks/${id}`, 200);
+  return result(request, publicTask(rows[0]), `/tasks/${id}`, 200);
 }
 
 async function remove(request: NextRequest, id: string, userId: string) {

@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, databaseError } from "@/lib/db";
 import { integer, requestValues, result, value } from "@/lib/http";
 import { getSessionUser, unauthorized } from "@/lib/session";
+import { publicPlan } from "@/lib/dto/records";
 
 export async function GET() {
   try {
     const user = await getSessionUser();
     if (!user) return unauthorized();
-    return NextResponse.json(await db()`SELECT * FROM plan WHERE user_id = ${user.id} ORDER BY start_date DESC, id DESC`);
+    const rows = await db()`SELECT * FROM plan WHERE user_id = ${user.id} ORDER BY start_date DESC, id DESC`;
+    return NextResponse.json(rows.map(publicPlan));
   } catch (error) {
     return databaseError(error);
   }
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
         ${integer(body, "priority")}, ${value(body, "success_criteria")}, ${integer(body, "estimate_minutes", false)},
         ${integer(body, "carried_from_review_id", false)}, ${user.id})
       RETURNING *`;
-    return result(request, rows[0], `/plans/${rows[0].id}`);
+    return result(request, publicPlan(rows[0]), `/plans/${rows[0].id}`);
   } catch (error) {
     return databaseError(error);
   }

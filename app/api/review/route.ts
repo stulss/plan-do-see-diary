@@ -3,6 +3,7 @@ import { db, databaseError } from "@/lib/db";
 import { buildTaskWhere } from "@/lib/domain/query";
 import { requestValues, result, value } from "@/lib/http";
 import { getSessionUser, unauthorized } from "@/lib/session";
+import { publicReview } from "@/lib/dto/records";
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,6 +43,6 @@ export async function POST(request: NextRequest) {
     const body = await requestValues(request);
     const rows = await db()`INSERT INTO review (period_start, period_end, next_action, user_id)
       VALUES (${value(body, "period_start")}, ${value(body, "period_end")}, ${value(body, "next_action")}, ${user.id}) RETURNING *`;
-    return result(request, rows[0], `/plans?review=${rows[0].id}&title=${encodeURIComponent(String(rows[0].next_action))}`);
+    return result(request, publicReview(rows[0]), `/plans?review=${rows[0].id}&title=${encodeURIComponent(String(rows[0].next_action))}`);
   } catch (error) { return databaseError(error); }
 }
