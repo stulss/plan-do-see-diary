@@ -16,7 +16,7 @@ if (!url) { console.error(".env.local 에 DATABASE_URL 이 없습니다."); proc
 const sql = postgres(url, { max: 1, prepare: false });
 
 const rows = await sql`
-  SELECT (c.completed_at AT TIME ZONE 'Asia/Seoul')::date AS day,
+  SELECT to_char(c.completed_at AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD') AS day,
          t.id, t.title, t.estimate_minutes,
          (SELECT SUM(d.actual_minutes) FROM
             (SELECT DISTINCT ON (r.task_id, r.started_at) r.actual_minutes
